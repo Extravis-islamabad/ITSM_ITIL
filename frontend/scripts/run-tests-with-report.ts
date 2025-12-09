@@ -1,0 +1,204 @@
+import { execSync } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
+
+interface TestResult {
+  module: string;
+  tests: {
+    name: string;
+    status: 'passed' | 'failed' | 'skipped';
+    duration: number;
+    error?: string;
+  }[];
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    skipped: number;
+  };
+}
+
+function parseTestResults(): TestResult[] {
+  const resultsPath = path.join(__dirname, '../test-results/results.json');
+
+  if (!fs.existsSync(resultsPath)) {
+    console.error('Test results not found. Running tests first...');
+    return [];
+  }
+
+  const results = JSON.parse(fs.readFileSync(resultsPath, 'utf-8'));
+  const moduleResults: Map<string, TestResult> = new Map();
+
+  // Parse Playwright results
+  for (const suite of results.suites || []) {
+    const moduleName = suite.title || 'Unknown Module';
+
+    if (!moduleResults.has(moduleName)) {
+      moduleResults.set(moduleName, {
+        module: moduleName,
+        tests: [],
+        summary: { total: 0, passed: 0, failed: 0, skipped: 0 }
+      });
+    }
+
+    const moduleResult = moduleResults.get(moduleName)!;
+
+    for (const spec of suite.specs || []) {
+      const testName = spec.title;
+      const testStatus = spec.ok ? 'passed' : 'failed';
+      const duration = spec.tests?.[0]?.results?.[0]?.duration || 0;
+      const error = spec.tests?.[0]?.results?.[0]?.error?.message;
+
+      moduleResult.tests.push({
+        name: testName,
+        status: testStatus,
+        duration,
+        error
+      });
+
+      moduleResult.summary.total++;
+      if (testStatus === 'passed') moduleResult.summary.passed++;
+      else if (testStatus === 'failed') moduleResult.summary.failed++;
+      else moduleResult.summary.skipped++;
+    }
+  }
+
+  return Array.from(moduleResults.values());
+}
+
+function generateMarkdownReport(results: TestResult[]): string {
+  let report = '# ITSM Platform - E2E Test Report\n\n';
+  report += `**Generated:** ${new Date().toLocaleString()}\n\n`;
+
+  // Overall summary
+  const totalTests = results.reduce((sum, r) => sum + r.summary.total, 0);
+  const totalPassed = results.reduce((sum, r) => sum + r.summary.passed, 0);
+  const totalFailed = results.reduce((sum, r) => sum + r.summary.failed, 0);
+  const totalSkipped = results.reduce((sum, r) => sum + r.summary.skipped, 0);
+  const successRate = totalTests > 0 ? ((totalPassed / totalTests) * 100).toFixed(1) : '0';
+
+  report += '## Overall Summary\n\n';
+  report += `| Metric | Value |\n`;
+  report += `|--------|-------|\n`;
+  report += `| Total Tests | ${totalTests} |\n`;
+  report += `| ✅ Passed | ${totalPassed} |\n`;
+  report += `| ❌ Failed | ${totalFailed} |\n`;
+  report += `| ⏭️ Skipped | ${totalSkipped} |\n`;
+  report += `| Success Rate | ${successRate}% |\n\n`;
+
+  // Module breakdown
+  report += '## Module Test Results\n\n';
+
+  for (const result of results) {
+    const moduleSuccess = result.summary.total > 0
+      ? ((result.summary.passed / result.summary.total) * 100).toFixed(1)
+      : '0';
+
+    const statusIcon = result.summary.failed === 0 ? '✅' : '⚠️';
+
+    report += `### ${statusIcon} ${result.module}\n\n`;
+    report += `**Summary:** ${result.summary.passed}/${result.summary.total} passed (${moduleSuccess}%)\n\n`;
+
+    if (result.tests.length > 0) {
+      report += '| Test | Status | Duration |\n';
+      report += '|------|--------|----------|\n';
+
+      for (const test of result.tests) {
+        const statusEmoji = test.status === 'passed' ? '✅' : test.status === 'failed' ? '❌' : '⏭️';
+        const duration = (test.duration / 1000).toFixed(2);
+        report += `| ${test.name} | ${statusEmoji} ${test.status} | ${duration}s |\n`;
+      }
+      report += '\n';
+
+      // Show errors for failed tests
+      const failedTests = result.tests.filter(t => t.status === 'failed' && t.error);
+      if (failedTests.length > 0) {
+        report += '**Errors:**\n\n';
+        for (const test of failedTests) {
+          report += `- **${test.name}:**\n  \`\`\`\n  ${test.error}\n  \`\`\`\n\n`;
+        }
+      }
+    }
+  }
+
+  // Recommendations
+  report += '## Recommendations\n\n';
+
+  if (totalFailed > 0) {
+    report += '### Issues Found\n\n';
+
+    const failedModules = results.filter(r => r.summary.failed > 0);
+    for (const module of failedModules) {
+      report += `- **${module.module}**: ${module.summary.failed} test(s) failing\n`;
+      const failedTests = module.tests.filter(t => t.status === 'failed');
+      for (const test of failedTests) {
+        report += `  - ${test.name}\n`;
+      }
+    }
+    report += '\n';
+  }
+
+  if (totalSkipped > 0) {
+    report += '### Skipped Tests\n\n';
+    report += `${totalSkipped} test(s) were skipped. Review these tests to ensure they are still relevant.\n\n`;
+  }
+
+  if (totalFailed === 0) {
+    report += '### ✨ All Tests Passing!\n\n';
+    report += 'All modules are working correctly. Great job!\n\n';
+  }
+
+  report += '---\n\n';
+  report += '*Report generated by Playwright E2E Testing Suite*\n';
+
+  return report;
+}
+
+async function main() {
+  console.log('🚀 Starting E2E Test Suite...\n');
+
+  try {
+    // Run Playwright tests
+    console.log('Running Playwright tests...');
+    execSync('npx playwright test', {
+      cwd: path.join(__dirname, '..'),
+      stdio: 'inherit'
+    });
+  } catch (error) {
+    console.log('\n⚠️ Some tests failed. Generating report...\n');
+  }
+
+  // Parse results
+  const results = parseTestResults();
+
+  if (results.length === 0) {
+    console.error('❌ No test results found.');
+    process.exit(1);
+  }
+
+  // Generate markdown report
+  const report = generateMarkdownReport(results);
+  const reportPath = path.join(__dirname, '../test-results/TEST-REPORT.md');
+  fs.writeFileSync(reportPath, report);
+
+  console.log(`\n✅ Detailed report generated: ${reportPath}`);
+  console.log('📊 HTML report available in: test-results/html-report/index.html');
+  console.log('\nTo view the HTML report, run: npx playwright show-report test-results/html-report\n');
+
+  // Print summary to console
+  const totalTests = results.reduce((sum, r) => sum + r.summary.total, 0);
+  const totalPassed = results.reduce((sum, r) => sum + r.summary.passed, 0);
+  const totalFailed = results.reduce((sum, r) => sum + r.summary.failed, 0);
+
+  console.log('📈 Summary:');
+  console.log(`   Total: ${totalTests} | Passed: ${totalPassed} | Failed: ${totalFailed}`);
+
+  if (totalFailed > 0) {
+    console.log('\n⚠️  Some tests failed. Check the report for details.');
+    process.exit(1);
+  } else {
+    console.log('\n✨ All tests passed!');
+  }
+}
+
+main().catch(console.error);

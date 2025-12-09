@@ -1,0 +1,239 @@
+{
+  "summary": {
+    "total": 38,
+    "passed": 3,
+    "failed": 35,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "test": "API Root Endpoint",
+      "status": "FAIL",
+      "details": "Status: 404",
+      "timestamp": "17:17:45"
+    },
+    {
+      "test": "Health Check Endpoint",
+      "status": "PASS",
+      "details": "System healthy",
+      "timestamp": "17:17:47"
+    },
+    {
+      "test": "Admin Login",
+      "status": "FAIL",
+      "details": "Status: N/A",
+      "timestamp": "17:17:50"
+    },
+    {
+      "test": "Agent Login",
+      "status": "FAIL",
+      "details": "Status: N/A",
+      "timestamp": "17:17:52"
+    },
+    {
+      "test": "User Login",
+      "status": "FAIL",
+      "details": "Status: N/A",
+      "timestamp": "17:17:54"
+    },
+    {
+      "test": "Invalid Login (Should Fail)",
+      "status": "FAIL",
+      "details": "Should return 401",
+      "timestamp": "17:17:56"
+    },
+    {
+      "test": "Get All Users (Admin)",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:17:58"
+    },
+    {
+      "test": "Search Users",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:00"
+    },
+    {
+      "test": "Create User (Admin)",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:02"
+    },
+    {
+      "test": "Create User (Agent - Should Fail)",
+      "status": "FAIL",
+      "details": "Should deny access",
+      "timestamp": "17:18:04"
+    },
+    {
+      "test": "Get All Roles",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:06"
+    },
+    {
+      "test": "Create Role",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:08"
+    },
+    {
+      "test": "Get All Categories",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:10"
+    },
+    {
+      "test": "Create Category",
+      "status": "FAIL",
+      "details": "Status: 405",
+      "timestamp": "17:18:12"
+    },
+    {
+      "test": "Get All Tickets",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:14"
+    },
+    {
+      "test": "Create Ticket",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:16"
+    },
+    {
+      "test": "Filter Tickets by Status",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:18"
+    },
+    {
+      "test": "Filter Tickets by Priority",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:20"
+    },
+    {
+      "test": "Get All Service Requests",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:22"
+    },
+    {
+      "test": "Create Service Request",
+      "status": "FAIL",
+      "details": "Status: 405",
+      "timestamp": "17:18:24"
+    },
+    {
+      "test": "Get All Changes",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:26"
+    },
+    {
+      "test": "Create Change Request",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:28"
+    },
+    {
+      "test": "Get Notifications",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:30"
+    },
+    {
+      "test": "Get Unread Count",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:32"
+    },
+    {
+      "test": "Get Notification Preferences",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:34"
+    },
+    {
+      "test": "Get All KB Articles",
+      "status": "PASS",
+      "details": "Total: 14 articles",
+      "timestamp": "17:18:37"
+    },
+    {
+      "test": "Create KB Article",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:39"
+    },
+    {
+      "test": "Search KB Articles",
+      "status": "PASS",
+      "details": "Found: 1 results",
+      "timestamp": "17:18:41"
+    },
+    {
+      "test": "Get All Assets",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:43"
+    },
+    {
+      "test": "Create Asset",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:45"
+    },
+    {
+      "test": "Get Dashboard Stats",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:47"
+    },
+    {
+      "test": "Get Ticket Reports",
+      "status": "FAIL",
+      "details": "Status: 404",
+      "timestamp": "17:18:49"
+    },
+    {
+      "test": "Get All SLA Policies",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:51"
+    },
+    {
+      "test": "Create SLA Policy",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:53"
+    },
+    {
+      "test": "Start Chat Conversation",
+      "status": "FAIL",
+      "details": "Status: 404",
+      "timestamp": "17:18:55"
+    },
+    {
+      "test": "Admin Access to Users",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:18:57"
+    },
+    {
+      "test": "User Create User (Should Fail)",
+      "status": "FAIL",
+      "details": "Should deny access",
+      "timestamp": "17:18:59"
+    },
+    {
+      "test": "User Create Own Ticket",
+      "status": "FAIL",
+      "details": "Status: 403",
+      "timestamp": "17:19:01"
+    }
+  ],
+  "timestamp": "2025-11-17T17:19:01.505751"
+}

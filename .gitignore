@@ -1,0 +1,120 @@
+# ===========================================
+# ITSM Platform - Git Ignore File
+# ===========================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+nul
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+frontend/dist/
+*.log
+
+# Environment files (IMPORTANT - never commit these!)
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+!frontend/.env.example
+!backend/.env.example
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads and exports (user data)
+uploads/
+exports/
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Logs
+logs/
+*.log
+
+# Local development
+local_settings.py
+
+# Alembic
+alembic/versions/__pycache__/
+
+# Static files that are generated
+staticfiles/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Testing guides (optional - remove if you want to keep them)
+*_TESTING_GUIDE.md
+TESTING-*.md
+QUICK_TEST_REFERENCE.md
+
+# Secrets
+*.pem
+*.key
+secrets/
+credentials/

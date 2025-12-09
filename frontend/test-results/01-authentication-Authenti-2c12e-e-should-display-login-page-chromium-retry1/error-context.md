@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e9]:
+    - img "SupportX" [ref=e10]
+    - heading "Welcome to IT Service Management" [level=1] [ref=e11]:
+      - text: Welcome to
+      - text: IT Service Management
+    - paragraph [ref=e12]: Streamline your IT operations with our comprehensive ITSM platform. Manage incidents, changes, and service requests all in one place.
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - img [ref=e16]
+        - generic [ref=e18]:
+          - heading "ITIL Compliant" [level=3] [ref=e19]
+          - paragraph [ref=e20]: Follow industry best practices
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - generic [ref=e25]:
+          - heading "Real-time Analytics" [level=3] [ref=e26]
+          - paragraph [ref=e27]: Make data-driven decisions
+      - generic [ref=e28]:
+        - img [ref=e30]
+        - generic [ref=e32]:
+          - heading "Enterprise Security" [level=3] [ref=e33]
+          - paragraph [ref=e34]: Bank-grade encryption & compliance
+  - generic [ref=e36]:
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - heading "Welcome Back!" [level=2] [ref=e39]
+        - paragraph [ref=e40]: Sign in to access your dashboard
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]: Username or Email
+          - generic [ref=e44]:
+            - generic:
+              - img
+            - textbox "Enter your username" [ref=e45]
+        - generic [ref=e46]:
+          - generic [ref=e47]: Password
+          - generic [ref=e48]:
+            - generic:
+              - img
+            - textbox "Enter your password" [ref=e49]
+            - button [ref=e50] [cursor=pointer]:
+              - img [ref=e51]
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - checkbox "Remember me" [ref=e56]
+            - generic [ref=e57]: Remember me
+          - link "Forgot password?" [ref=e58] [cursor=pointer]:
+            - /url: "#"
+        - button "Sign In" [ref=e59] [cursor=pointer]:
+          - text: Sign In
+          - img [ref=e60]
+      - generic [ref=e64]:
+        - img [ref=e66]
+        - generic [ref=e68]:
+          - paragraph [ref=e69]: Demo Credentials
+          - generic [ref=e70]:
+            - paragraph [ref=e71]: "Username: admin"
+            - paragraph [ref=e72]: "Password: Admin@123"
+    - paragraph [ref=e73]: © 2025 SupportX. All rights reserved.
+```
