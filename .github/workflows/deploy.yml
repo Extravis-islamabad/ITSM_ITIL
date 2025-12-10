@@ -23,7 +23,7 @@ env:
   ECR_BACKEND_REPOSITORY: itsm-backend
   ECR_FRONTEND_REPOSITORY: itsm-frontend
   ECS_CLUSTER: itsm-cluster
-  ECS_SERVICE_BACKEND: itsm-backend-service
+  ECS_SERVICE_BACKEND: itsm-backend
   ECS_SERVICE_FRONTEND: itsm-frontend-service
 
 jobs:

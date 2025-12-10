@@ -19,10 +19,11 @@ export interface RefreshResponse {
 export const authService = {
   // Login uses raw axios to avoid interceptor issues during authentication
   login: async (username: string, password: string): Promise<LoginResponse> => {
-    const response = await axios.post<LoginResponse>(`${API_URL}/auth/login`, {
-      username,
-      password,
-    });
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/auth/login`,
+      { username, password },
+      { withCredentials: true }
+    );
     return response.data;
   },
 
@@ -41,9 +42,11 @@ export const authService = {
 
   // Refresh uses raw axios to avoid infinite loop in interceptor
   refreshToken: async (refreshToken: string): Promise<RefreshResponse> => {
-    const response = await axios.post<RefreshResponse>(`${API_URL}/auth/refresh`, {
-      refresh_token: refreshToken,
-    });
+    const response = await axios.post<RefreshResponse>(
+      `${API_URL}/auth/refresh`,
+      { refresh_token: refreshToken },
+      { withCredentials: true }
+    );
     return response.data;
   },
 
