@@ -3,14 +3,14 @@ from typing import Optional, List
 from datetime import datetime
 from app.models.notification import Notification, NotificationType, NotificationPreference
 from app.models.user import User
-from app.core.email import send_email
+from app.core.email import send_email as send_email_func
 import logging
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 class NotificationService:
-    
+
     @staticmethod
     def create_notification(
         db: Session,
@@ -21,7 +21,7 @@ class NotificationService:
         entity_type: Optional[str] = None,
         entity_id: Optional[int] = None,
         action_url: Optional[str] = None,
-        send_email: bool = True
+        should_send_email: bool = True
     ) -> Notification:
         """Create a notification and optionally send email"""
         
@@ -57,7 +57,7 @@ class NotificationService:
         db.flush()
         
         # Send email if enabled
-        if send_email:
+        if should_send_email:
             email_enabled = NotificationService._check_email_preference(preferences, notification_type)
             if email_enabled:
                 NotificationService._send_email_notification(db, notification)
@@ -104,7 +104,6 @@ class NotificationService:
         """Send email notification with branded template"""
         try:
             from app.core.email_templates import EmailTemplates
-            from app.core.email import send_email as send_email_func
             
             user = db.query(User).filter(User.id == notification.user_id).first()
             if not user or not user.email:
@@ -131,11 +130,12 @@ class NotificationService:
                 from app.models.ticket import Ticket
                 ticket = db.query(Ticket).filter(Ticket.id == notification.entity_id).first()
                 if ticket:
+                    # Extract status from message if available
                     html_content = EmailTemplates.ticket_status_changed(
                         ticket_number=ticket.ticket_number,
                         title=ticket.title,
-                        old_status=notification.old_value or "Unknown",
-                        new_status=notification.new_value or ticket.status,
+                        old_status="Previous",
+                        new_status=ticket.status or "Updated",
                         user_name=user.full_name,
                         action_url=f"{settings.APP_URL}/tickets/{ticket.id}"
                     )

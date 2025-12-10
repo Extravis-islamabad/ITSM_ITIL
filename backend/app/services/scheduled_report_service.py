@@ -381,7 +381,7 @@ class ScheduledReportService:
         """Send report via email with attachment"""
         try:
             msg = MIMEMultipart()
-            msg['From'] = settings.SMTP_FROM
+            msg['From'] = f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>"
             msg['To'] = ', '.join(recipients)
             msg['Subject'] = f"Scheduled Report: {report.name}"
 
