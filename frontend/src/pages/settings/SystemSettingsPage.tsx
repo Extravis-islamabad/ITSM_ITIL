@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import axiosInstance from '@/lib/axios';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface SettingsSection {
   id: string;
@@ -136,7 +137,7 @@ export default function SystemSettingsPage() {
       setHasChanges(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to save settings');
+      toast.error(getErrorMessage(error, 'Failed to save settings'));
     }
   });
 

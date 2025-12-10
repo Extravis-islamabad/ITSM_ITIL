@@ -119,21 +119,25 @@ const ConversationList: React.FC<ConversationListProps> = ({
           >
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              {avatarUrl ? (
+              {avatarUrl && (
                 <img
                   src={avatarUrl}
                   alt=""
                   className="h-12 w-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback) fallback.classList.remove('hidden');
+                  }}
                 />
-              ) : (
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                  {conversation.conversation_type === 'group' ? (
-                    <Users className="h-6 w-6" />
-                  ) : (
-                    getConversationName(conversation).substring(0, 2).toUpperCase()
-                  )}
-                </div>
               )}
+              <div className={`h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium ${avatarUrl ? 'hidden' : ''}`}>
+                {conversation.conversation_type === 'group' ? (
+                  <Users className="h-6 w-6" />
+                ) : (
+                  getConversationName(conversation).substring(0, 2).toUpperCase()
+                )}
+              </div>
               {/* Online indicator */}
               {conversation.conversation_type === 'direct' && isOnline && (
                 <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />

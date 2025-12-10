@@ -7,6 +7,7 @@ import { KnowledgeCategory } from '@/types';
 import Button from '@/components/common/Button';
 import toast from 'react-hot-toast';
 import { CATEGORY_QUICK_SELECT, DEFAULT_CATEGORY_EMOJI } from '@/constants/emojis';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface CategoryModalProps {
   open: boolean;
@@ -71,7 +72,7 @@ export default function CategoryModal({ open, onClose, category, categories }: C
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create category');
+      toast.error(getErrorMessage(error, 'Failed to create category'));
     },
   });
 
@@ -84,7 +85,7 @@ export default function CategoryModal({ open, onClose, category, categories }: C
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update category');
+      toast.error(getErrorMessage(error, 'Failed to update category'));
     },
   });
 

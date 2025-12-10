@@ -18,6 +18,7 @@ import {
   getSprintStatusColor,
 } from '@/types/project';
 import CreateSprintModal from './CreateSprintModal';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Props {
   projectId: number;
@@ -40,7 +41,7 @@ export default function ProjectSprints({ projectId }: Props) {
       toast.success('Sprint started');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to start sprint');
+      toast.error(getErrorMessage(error, 'Failed to start sprint'));
     },
   });
 

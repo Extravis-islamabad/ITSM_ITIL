@@ -9,6 +9,7 @@ import Input from '@/components/common/Input';
 import Select from '@/components/common/Select';
 import Modal from '@/components/common/Modal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface CreateProblemModalProps {
   onClose: () => void;
@@ -43,7 +44,7 @@ export default function CreateProblemModal({ onClose, onSuccess }: CreateProblem
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create problem');
+      toast.error(getErrorMessage(error, 'Failed to create problem'));
     },
   });
 

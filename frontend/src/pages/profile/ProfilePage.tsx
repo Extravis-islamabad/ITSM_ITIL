@@ -9,7 +9,7 @@ import { Card, CardHeader, CardBody } from '@/components/common/Card';
 import Input from '@/components/common/Input';
 import Button from '@/components/common/Button';
 import Badge from '@/components/common/Badge';
-import { formatDate } from '@/utils/helpers';
+import { formatDate, getErrorMessage } from '@/utils/helpers';
 import toast from 'react-hot-toast';
 import {
   UserCircleIcon,
@@ -57,7 +57,7 @@ export default function ProfilePage() {
       setIsChangingPassword(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to change password');
+      toast.error(getErrorMessage(error, 'Failed to change password'));
     },
   });
 
@@ -69,7 +69,7 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to upload profile picture');
+      toast.error(getErrorMessage(error, 'Failed to upload profile picture'));
     },
   });
 
@@ -81,7 +81,7 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to remove profile picture');
+      toast.error(getErrorMessage(error, 'Failed to remove profile picture'));
     },
   });
 
@@ -169,17 +169,21 @@ export default function ProfilePage() {
                 />
 
                 {/* Avatar display */}
-                {avatarUrl ? (
+                {avatarUrl && (
                   <img
                     src={avatarUrl}
                     alt={user.full_name}
                     className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) fallback.classList.remove('hidden');
+                    }}
                   />
-                ) : (
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-accent-600 to-secondary-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
-                    {user.full_name.substring(0, 2).toUpperCase()}
-                  </div>
                 )}
+                <div className={`h-24 w-24 rounded-full bg-gradient-to-br from-accent-600 to-secondary-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg ${avatarUrl ? 'hidden' : ''}`}>
+                  {user.full_name.substring(0, 2).toUpperCase()}
+                </div>
 
                 {/* Hover overlay with camera icon */}
                 <button

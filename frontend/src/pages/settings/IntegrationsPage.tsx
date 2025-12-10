@@ -19,6 +19,7 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { getErrorMessage } from '@/utils/helpers';
 import {
   integrationService,
   Integration,
@@ -143,7 +144,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ['integrations'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create integration');
+      toast.error(getErrorMessage(error, 'Failed to create integration'));
     },
   });
 
@@ -158,7 +159,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ['integrations'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update integration');
+      toast.error(getErrorMessage(error, 'Failed to update integration'));
     },
   });
 
@@ -170,7 +171,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ['integrations'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete integration');
+      toast.error(getErrorMessage(error, 'Failed to delete integration'));
     },
   });
 
@@ -187,7 +188,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ['integrations'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Connection test failed');
+      toast.error(getErrorMessage(error, 'Connection test failed'));
       setTestingId(null);
     },
   });
@@ -202,7 +203,7 @@ export default function IntegrationsPage() {
       setIsPreviewModalOpen(true);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to preview items');
+      toast.error(getErrorMessage(error, 'Failed to preview items'));
     },
   });
 
@@ -217,7 +218,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ['import-jobs'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to start import');
+      toast.error(getErrorMessage(error, 'Failed to start import'));
     },
   });
 

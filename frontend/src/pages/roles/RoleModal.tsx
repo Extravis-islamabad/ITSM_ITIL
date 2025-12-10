@@ -10,6 +10,7 @@ import Select from '@/components/common/Select';
 import Button from '@/components/common/Button';
 import { Role } from '@/types';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 const roleSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
@@ -88,7 +89,7 @@ export default function RoleModal({ open, onClose, role }: RoleModalProps) {
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || error.response?.data?.message || 'Failed to create role');
+      toast.error(getErrorMessage(error, 'Failed to create role'));
     },
   });
 
@@ -101,7 +102,7 @@ export default function RoleModal({ open, onClose, role }: RoleModalProps) {
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || error.response?.data?.message || 'Failed to update role');
+      toast.error(getErrorMessage(error, 'Failed to update role'));
     },
   });
 

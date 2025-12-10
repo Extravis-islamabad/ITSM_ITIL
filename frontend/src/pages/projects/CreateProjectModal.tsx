@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import { userService } from '@/services/userService';
 import { ProjectCreate } from '@/types/project';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Props {
   onClose: () => void;
@@ -35,7 +36,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: Props) {
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create project');
+      toast.error(getErrorMessage(error, 'Failed to create project'));
     },
   });
 

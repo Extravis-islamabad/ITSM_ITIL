@@ -9,6 +9,7 @@ import Badge from '@/components/common/Badge';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import CategoryModal from '@/components/knowledge/CategoryModal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function CategoriesPage() {
       toast.success('Category deleted successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete category');
+      toast.error(getErrorMessage(error, 'Failed to delete category'));
     },
   });
 

@@ -17,6 +17,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isAgentOrHigher } from '@/utils/roleHelpers';
+import { getErrorMessage } from '@/utils/helpers';
 
 const ticketSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -109,7 +110,7 @@ export default function IncidentEditPage() {
       navigate(`/incidents/${id}`);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update incident');
+      toast.error(getErrorMessage(error, 'Failed to update incident'));
     },
   });
 

@@ -7,6 +7,7 @@ import { roleService } from '@/services/roleService';
 import Button from '@/components/common/Button';
 import toast from 'react-hot-toast';
 import { User } from '@/types';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface UserModalProps {
   open: boolean;
@@ -86,12 +87,7 @@ export default function UserModal({ open, onClose, user }: UserModalProps) {
       onClose();
     },
     onError: (error: any) => {
-      const detail = error.response?.data?.detail;
-      if (typeof detail === 'string') {
-        toast.error(detail);
-      } else {
-        toast.error('Failed to create user');
-      }
+      toast.error(getErrorMessage(error, 'Failed to create user'));
     },
   });
 
@@ -104,12 +100,7 @@ export default function UserModal({ open, onClose, user }: UserModalProps) {
       onClose();
     },
     onError: (error: any) => {
-      const detail = error.response?.data?.detail;
-      if (typeof detail === 'string') {
-        toast.error(detail);
-      } else {
-        toast.error('Failed to update user');
-      }
+      toast.error(getErrorMessage(error, 'Failed to update user'));
     },
   });
 

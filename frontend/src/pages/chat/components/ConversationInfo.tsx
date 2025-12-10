@@ -131,21 +131,25 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
       <div className="flex-1 overflow-y-auto">
         {/* Group/User avatar and name */}
         <div className="p-6 text-center border-b border-gray-200 dark:border-gray-700">
-          {conversation.avatar_url ? (
+          {conversation.avatar_url && (
             <img
               src={getAvatarUrl(conversation.avatar_url)}
               alt=""
               className="h-20 w-20 mx-auto rounded-full object-cover mb-4"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling;
+                if (fallback) fallback.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <div className="h-20 w-20 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-medium mb-4">
-              {isGroup ? (
-                <Users className="h-10 w-10" />
-              ) : (
-                (conversation.name || 'Chat').substring(0, 2).toUpperCase()
-              )}
-            </div>
           )}
+          <div className={`h-20 w-20 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-medium mb-4 ${conversation.avatar_url ? 'hidden' : ''}`}>
+            {isGroup ? (
+              <Users className="h-10 w-10" />
+            ) : (
+              (conversation.name || 'Chat').substring(0, 2).toUpperCase()
+            )}
+          </div>
 
           {editingName && isGroup && isAdmin ? (
             <div className="space-y-3">
@@ -286,17 +290,21 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <div className="relative">
-                    {participant.avatar_url ? (
+                    {participant.avatar_url && (
                       <img
                         src={getAvatarUrl(participant.avatar_url)}
                         alt=""
                         className="h-9 w-9 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) fallback.classList.remove('hidden');
+                        }}
                       />
-                    ) : (
-                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
-                        {participant.full_name.substring(0, 2).toUpperCase()}
-                      </div>
                     )}
+                    <div className={`h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium ${participant.avatar_url ? 'hidden' : ''}`}>
+                      {participant.full_name.substring(0, 2).toUpperCase()}
+                    </div>
                     {participant.is_online && (
                       <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />
                     )}

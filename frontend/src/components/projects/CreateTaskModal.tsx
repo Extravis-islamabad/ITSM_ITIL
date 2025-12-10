@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import { userService } from '@/services/userService';
 import { TaskCreate, TaskType, TaskStatus, TaskPriority } from '@/types/project';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Props {
   projectId: number;
@@ -43,7 +44,7 @@ export default function CreateTaskModal({ projectId, sprintId, onClose, onSucces
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create task');
+      toast.error(getErrorMessage(error, 'Failed to create task'));
     },
   });
 

@@ -238,17 +238,21 @@ const MessageThread: React.FC<MessageThreadProps> = ({
                   {/* Avatar (only for non-consecutive messages from others) */}
                   {!isOwn && !isConsecutive && (
                     <div className="absolute -left-10 top-0">
-                      {sender?.avatar_url ? (
+                      {sender?.avatar_url && (
                         <img
                           src={getAvatarUrl(sender.avatar_url)}
                           alt=""
                           className="h-8 w-8 rounded-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
                         />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
-                          {sender?.full_name?.substring(0, 2).toUpperCase() || '??'}
-                        </div>
                       )}
+                      <div className={`h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium ${sender?.avatar_url ? 'hidden' : ''}`}>
+                        {sender?.full_name?.substring(0, 2).toUpperCase() || '??'}
+                      </div>
                     </div>
                   )}
 

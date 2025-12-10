@@ -21,6 +21,7 @@ import { Card, CardBody } from '@/components/common/Card';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isAgentOrHigher, isManagerOrHigher } from '@/utils/roleHelpers';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function AssetsPage() {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export default function AssetsPage() {
       toast.success('Asset deleted successfully');
       refetch();
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to delete asset');
+      toast.error(getErrorMessage(error, 'Failed to delete asset'));
     }
   };
 
@@ -82,7 +83,7 @@ export default function AssetsPage() {
       });
       toast.success('PDF downloaded successfully!', { id: 'pdf-export' });
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to generate PDF', { id: 'pdf-export' });
+      toast.error(getErrorMessage(error, 'Failed to generate PDF'), { id: 'pdf-export' });
     }
   };
 

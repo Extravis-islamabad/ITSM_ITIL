@@ -14,6 +14,7 @@ import {
 import axiosInstance from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Group {
   id: number;
@@ -96,7 +97,7 @@ export default function GroupsPage() {
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create group');
+      toast.error(getErrorMessage(error, 'Failed to create group'));
     }
   });
 
@@ -114,7 +115,7 @@ export default function GroupsPage() {
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update group');
+      toast.error(getErrorMessage(error, 'Failed to update group'));
     }
   });
 
@@ -128,7 +129,7 @@ export default function GroupsPage() {
       toast.success('Group deleted successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete group');
+      toast.error(getErrorMessage(error, 'Failed to delete group'));
     }
   });
 
@@ -144,7 +145,7 @@ export default function GroupsPage() {
       setSelectedMembers([]);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add members');
+      toast.error(getErrorMessage(error, 'Failed to add members'));
     }
   });
 
@@ -159,7 +160,7 @@ export default function GroupsPage() {
       toast.success('Member removed successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to remove member');
+      toast.error(getErrorMessage(error, 'Failed to remove member'));
     }
   });
 

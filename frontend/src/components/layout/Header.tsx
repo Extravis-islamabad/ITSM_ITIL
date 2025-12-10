@@ -74,17 +74,22 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <Menu as="div" className="relative">
             <Menu.Button className="-m-1.5 flex items-center p-1.5 hover:bg-primary-50 rounded-xl transition-colors">
               <span className="sr-only">Open user menu</span>
-              {avatarUrl ? (
+              {avatarUrl && (
                 <img
                   src={avatarUrl}
                   alt={user?.full_name || 'User'}
                   className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/30"
+                  onError={(e) => {
+                    // Hide the broken image and show initials fallback
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback) fallback.classList.remove('hidden');
+                  }}
                 />
-              ) : (
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-primary-500/30">
-                  {user?.full_name?.substring(0, 2).toUpperCase() || 'U'}
-                </div>
               )}
+              <div className={`h-9 w-9 rounded-xl bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-primary-500/30 ${avatarUrl ? 'hidden' : ''}`}>
+                {user?.full_name?.substring(0, 2).toUpperCase() || 'U'}
+              </div>
               <span className="hidden lg:flex lg:items-center lg:ml-3">
                 <span className="text-sm font-semibold leading-6 text-gray-900">
                   {user?.full_name || 'User'}

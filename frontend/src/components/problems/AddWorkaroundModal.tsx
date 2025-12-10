@@ -4,6 +4,7 @@ import { problemService } from '@/services/problemService';
 import Button from '@/components/common/Button';
 import Modal from '@/components/common/Modal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface AddWorkaroundModalProps {
   problemId: number;
@@ -24,7 +25,7 @@ export default function AddWorkaroundModal({ problemId, onClose, onSuccess }: Ad
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add workaround');
+      toast.error(getErrorMessage(error, 'Failed to add workaround'));
     },
   });
 

@@ -238,17 +238,21 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
                       }`}
                     >
                       {/* Avatar */}
-                      {user.avatar_url ? (
+                      {user.avatar_url && (
                         <img
                           src={getAvatarUrl(user.avatar_url)}
                           alt=""
                           className="h-10 w-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
                         />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                          {user.full_name.substring(0, 2).toUpperCase()}
-                        </div>
                       )}
+                      <div className={`h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium ${user.avatar_url ? 'hidden' : ''}`}>
+                        {user.full_name.substring(0, 2).toUpperCase()}
+                      </div>
 
                       {/* Info */}
                       <div className="flex-1 text-left">

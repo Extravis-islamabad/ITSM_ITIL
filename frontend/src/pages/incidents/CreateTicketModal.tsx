@@ -13,6 +13,7 @@ import Select from '@/components/common/Select';
 import Button from '@/components/common/Button';
 import toast from 'react-hot-toast';
 import { XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { getErrorMessage } from '@/utils/helpers';
 
 const ticketSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -118,7 +119,7 @@ export default function CreateTicketModal({ open, onClose, onSuccess }: CreateTi
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create incident');
+      toast.error(getErrorMessage(error, 'Failed to create incident'));
     },
   });
 

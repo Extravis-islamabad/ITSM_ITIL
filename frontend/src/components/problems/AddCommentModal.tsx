@@ -4,6 +4,7 @@ import { problemService } from '@/services/problemService';
 import Button from '@/components/common/Button';
 import Modal from '@/components/common/Modal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface AddCommentModalProps {
   problemId: number;
@@ -24,7 +25,7 @@ export default function AddCommentModal({ problemId, onClose, onSuccess }: AddCo
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add comment');
+      toast.error(getErrorMessage(error, 'Failed to add comment'));
     },
   });
 

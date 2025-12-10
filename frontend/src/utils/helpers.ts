@@ -92,3 +92,48 @@ export function debounce<T extends (...args: any[]) => any>(
     timeoutId = setTimeout(() => func(...args), delay) as unknown as number;
   };
 }
+
+/**
+ * Extracts a user-friendly error message from API error responses.
+ * Handles FastAPI/Pydantic validation errors (array of objects) and plain string errors.
+ */
+export function getErrorMessage(error: any, fallback: string = 'An error occurred'): string {
+  if (!error) return fallback;
+
+  // Handle axios error response
+  const detail = error.response?.data?.detail;
+
+  if (!detail) {
+    // Check for network errors or other error formats
+    if (error.message) return error.message;
+    return fallback;
+  }
+
+  // If detail is a string, return it directly
+  if (typeof detail === 'string') {
+    return detail;
+  }
+
+  // If detail is an array (Pydantic validation errors), extract messages
+  if (Array.isArray(detail)) {
+    const messages = detail.map((err: any) => {
+      if (typeof err === 'string') return err;
+      // Pydantic validation error format: { type, loc, msg, input, ctx, url }
+      if (err.msg) {
+        // Include field location for context if available
+        const field = err.loc?.slice(1).join('.'); // Skip 'body' prefix
+        return field ? `${field}: ${err.msg}` : err.msg;
+      }
+      return JSON.stringify(err);
+    });
+    return messages.join(', ');
+  }
+
+  // If detail is an object (shouldn't happen, but handle it)
+  if (typeof detail === 'object') {
+    if (detail.msg) return detail.msg;
+    return JSON.stringify(detail);
+  }
+
+  return fallback;
+}

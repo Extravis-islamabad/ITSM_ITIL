@@ -12,6 +12,7 @@ import ColorPicker from '@/components/common/ColorPicker';
 import { PlusIcon, TrashIcon, TagIcon, FolderIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Category {
   id: number;
@@ -89,7 +90,7 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create category');
+      toast.error(getErrorMessage(error, 'Failed to create category'));
     },
   });
 
@@ -103,7 +104,7 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create subcategory');
+      toast.error(getErrorMessage(error, 'Failed to create subcategory'));
     },
   });
 
@@ -114,7 +115,7 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete category');
+      toast.error(getErrorMessage(error, 'Failed to delete category'));
     },
   });
 

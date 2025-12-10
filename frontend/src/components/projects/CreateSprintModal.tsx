@@ -4,6 +4,7 @@ import { X, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import { SprintCreate } from '@/types/project';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Props {
   projectId: number;
@@ -26,7 +27,7 @@ export default function CreateSprintModal({ projectId, onClose, onSuccess }: Pro
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create sprint');
+      toast.error(getErrorMessage(error, 'Failed to create sprint'));
     },
   });
 

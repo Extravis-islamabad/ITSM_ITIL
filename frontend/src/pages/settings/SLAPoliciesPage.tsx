@@ -10,6 +10,7 @@ import EmptyState from '@/components/common/EmptyState';
 import { PlusIcon, PencilIcon, TrashIcon, ClockIcon, CheckIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface SLAPolicyFormData {
   name: string;
@@ -53,7 +54,7 @@ export default function SLAPoliciesPage() {
       queryClient.invalidateQueries({ queryKey: ['sla-policies'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create SLA policy');
+      toast.error(getErrorMessage(error, 'Failed to create SLA policy'));
     },
   });
 
@@ -67,7 +68,7 @@ export default function SLAPoliciesPage() {
       queryClient.invalidateQueries({ queryKey: ['sla-policies'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update SLA policy');
+      toast.error(getErrorMessage(error, 'Failed to update SLA policy'));
     },
   });
 
@@ -78,7 +79,7 @@ export default function SLAPoliciesPage() {
       queryClient.invalidateQueries({ queryKey: ['sla-policies'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete SLA policy');
+      toast.error(getErrorMessage(error, 'Failed to delete SLA policy'));
     },
   });
 

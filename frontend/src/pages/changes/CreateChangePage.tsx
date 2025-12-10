@@ -11,6 +11,7 @@ import Select from '@/components/common/Select';
 import Button from '@/components/common/Button';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { getErrorMessage } from '@/utils/helpers';
 
 
 const changeSchema = z.object({
@@ -95,7 +96,7 @@ export default function CreateChangePage() {
       navigate(`/changes/${data.id}`);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create change');
+      toast.error(getErrorMessage(error, 'Failed to create change'));
     },
   });
 

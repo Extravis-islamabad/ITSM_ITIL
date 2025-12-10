@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { isAgentOrHigher } from '@/utils/roleHelpers';
 import { User } from '@/types';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function AssetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +99,7 @@ export default function AssetDetailPage() {
       refetch();
       queryClient.invalidateQueries({ queryKey: ['asset', id] });
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to assign asset');
+      toast.error(getErrorMessage(error, 'Failed to assign asset'));
     } finally {
       setIsAssigning(false);
     }
@@ -114,7 +115,7 @@ export default function AssetDetailPage() {
       refetch();
       queryClient.invalidateQueries({ queryKey: ['asset', id] });
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to return asset');
+      toast.error(getErrorMessage(error, 'Failed to return asset'));
     } finally {
       setIsAssigning(false);
     }
@@ -170,12 +171,7 @@ export default function AssetDetailPage() {
       });
       refetch();
     } catch (error: any) {
-      const errorDetail = error.response?.data?.detail;
-      if (Array.isArray(errorDetail)) {
-        toast.error(errorDetail.map((e: any) => e.msg).join(', '));
-      } else {
-        toast.error(errorDetail || 'Failed to add contract');
-      }
+      toast.error(getErrorMessage(error, 'Failed to add contract'));
     } finally {
       setIsSubmitting(false);
     }
@@ -204,12 +200,7 @@ export default function AssetDetailPage() {
       });
       refetch();
     } catch (error: any) {
-      const errorDetail = error.response?.data?.detail;
-      if (Array.isArray(errorDetail)) {
-        toast.error(errorDetail.map((e: any) => e.msg).join(', '));
-      } else {
-        toast.error(errorDetail || 'Failed to add relationship');
-      }
+      toast.error(getErrorMessage(error, 'Failed to add relationship'));
     } finally {
       setIsSubmitting(false);
     }

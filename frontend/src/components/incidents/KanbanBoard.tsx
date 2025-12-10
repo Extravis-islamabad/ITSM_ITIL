@@ -11,7 +11,7 @@ import {
   ArrowPathIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/react/24/outline';
-import { formatRelativeTime, getPriorityColor } from '@/utils/helpers';
+import { formatRelativeTime, getPriorityColor, getErrorMessage } from '@/utils/helpers';
 import toast from 'react-hot-toast';
 
 interface Ticket {
@@ -112,7 +112,7 @@ export default function KanbanBoard({ tickets, onRefresh, isLoading }: KanbanBoa
       onRefresh();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update status');
+      toast.error(getErrorMessage(error, 'Failed to update status'));
     },
   });
 

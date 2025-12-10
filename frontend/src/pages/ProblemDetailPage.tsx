@@ -12,6 +12,7 @@ import Button from '@/components/common/Button';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow, format } from 'date-fns';
+import { getErrorMessage } from '@/utils/helpers';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -54,7 +55,7 @@ export default function ProblemDetailPage() {
       navigate('/problems');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete problem');
+      toast.error(getErrorMessage(error, 'Failed to delete problem'));
     },
   });
 

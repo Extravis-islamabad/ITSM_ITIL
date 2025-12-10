@@ -6,6 +6,7 @@ import Button from '@/components/common/Button';
 import Select from '@/components/common/Select';
 import Modal from '@/components/common/Modal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface StatusUpdateModalProps {
   problemId: number;
@@ -24,7 +25,7 @@ export default function StatusUpdateModal({ problemId, currentStatus, onClose, o
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update status');
+      toast.error(getErrorMessage(error, 'Failed to update status'));
     },
   });
 

@@ -21,6 +21,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '@/utils/helpers';
 
 // Simple debounce utility
 function debounce<T extends (...args: any[]) => any>(
@@ -136,7 +137,7 @@ What can I help you with today?`,
       }
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to send message');
+      toast.error(getErrorMessage(error, 'Failed to send message'));
     },
   });
 
@@ -160,7 +161,7 @@ What can I help you with today?`,
       resetTicketForm();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create ticket');
+      toast.error(getErrorMessage(error, 'Failed to create ticket'));
     },
   });
 

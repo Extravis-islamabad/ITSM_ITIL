@@ -5,6 +5,7 @@ import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import Modal from '@/components/common/Modal';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface LinkIncidentModalProps {
   problemId: number;
@@ -28,7 +29,7 @@ export default function LinkIncidentModal({ problemId, onClose, onSuccess }: Lin
       onSuccess();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to link incident');
+      toast.error(getErrorMessage(error, 'Failed to link incident'));
     },
   });
 

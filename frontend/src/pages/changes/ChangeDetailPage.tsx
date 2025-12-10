@@ -21,6 +21,7 @@ import {
   Send,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function ChangeDetailPage() {
   const { id } = useParams();
@@ -82,7 +83,7 @@ export default function ChangeDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['change', id] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to schedule change');
+      toast.error(getErrorMessage(error, 'Failed to schedule change'));
     },
   });
 

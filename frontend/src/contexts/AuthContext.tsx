@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import { User } from '@/types';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface AuthContextType {
   user: User | null;
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Welcome back!');
       navigate('/');
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      toast.error(getErrorMessage(error, 'Login failed'));
       throw error;
     }
   };

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
@@ -122,6 +123,10 @@ axiosInstance.interceptors.response.use(
       if (hasToken && !isLoginPage) {
         toast.error('You do not have permission to perform this action');
       }
+    } else if (error.response?.status === 422) {
+      // Validation errors - show user-friendly message
+      const message = getErrorMessage(error, 'Validation error');
+      toast.error(message);
     } else if (error.response?.status === 500) {
       toast.error('Server error. Please try again later.');
     }

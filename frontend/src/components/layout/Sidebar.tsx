@@ -349,17 +349,21 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       {/* User Info */}
       <div className="border-t border-primary-100 p-4 bg-gradient-to-r from-primary-50 to-accent-50">
         <div className="flex items-center gap-3 p-3 rounded-xl bg-white shadow-sm border border-primary-100 hover:shadow-md transition-shadow">
-          {avatarUrl ? (
+          {avatarUrl && (
             <img
               src={avatarUrl}
               alt={user?.full_name || 'User'}
               className="w-11 h-11 rounded-xl object-cover shadow-lg"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling;
+                if (fallback) fallback.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <div className="w-11 h-11 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-              {user?.full_name?.substring(0, 2).toUpperCase() || 'U'}
-            </div>
           )}
+          <div className={`w-11 h-11 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${avatarUrl ? 'hidden' : ''}`}>
+            {user?.full_name?.substring(0, 2).toUpperCase() || 'U'}
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name || 'User'}</p>
             <p className="text-xs text-gray-500 truncate">{user?.role || 'User'}</p>

@@ -11,6 +11,7 @@ import AssetTypeModal from './AssetTypeModal';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrHigher } from '@/utils/roleHelpers';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function AssetTypesPage() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function AssetTypesPage() {
       toast.success('Asset type deleted successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete asset type');
+      toast.error(getErrorMessage(error, 'Failed to delete asset type'));
     },
   });
 

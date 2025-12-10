@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import RoleModal from './RoleModal';
 import { Role } from '@/types';
-import { formatDate } from '@/utils/helpers';
+import { formatDate, getErrorMessage } from '@/utils/helpers';
 import toast from 'react-hot-toast';
 import { usePermission } from '@/hooks/usePermission';
 
@@ -32,7 +32,7 @@ export default function RolesPage() {
       toast.success('Role deleted successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || error.response?.data?.message || 'Failed to delete role');
+      toast.error(getErrorMessage(error, 'Failed to delete role'));
     },
   });
 

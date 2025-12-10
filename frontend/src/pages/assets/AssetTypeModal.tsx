@@ -6,6 +6,7 @@ import { assetService } from '@/services/assetService';
 import Button from '@/components/common/Button';
 import EmojiPicker from '@/components/common/EmojiPicker';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface AssetTypeModalProps {
   open: boolean;
@@ -70,7 +71,7 @@ export default function AssetTypeModal({ open, onClose, assetType }: AssetTypeMo
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create asset type');
+      toast.error(getErrorMessage(error, 'Failed to create asset type'));
     },
   });
 
@@ -83,7 +84,7 @@ export default function AssetTypeModal({ open, onClose, assetType }: AssetTypeMo
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update asset type');
+      toast.error(getErrorMessage(error, 'Failed to update asset type'));
     },
   });
 

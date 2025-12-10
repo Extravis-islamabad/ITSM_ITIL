@@ -19,6 +19,7 @@ import {
   getColumnColor,
   getMemberRoleColor,
 } from '@/types/project';
+import { getErrorMessage } from '@/utils/helpers';
 
 interface Props {
   project: ProjectDetail;
@@ -74,7 +75,7 @@ export default function ProjectSettings({ project }: Props) {
       toast.success('Column deleted');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete column');
+      toast.error(getErrorMessage(error, 'Failed to delete column'));
     },
   });
 
@@ -87,7 +88,7 @@ export default function ProjectSettings({ project }: Props) {
       toast.success('Member added');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add member');
+      toast.error(getErrorMessage(error, 'Failed to add member'));
     },
   });
 
@@ -98,7 +99,7 @@ export default function ProjectSettings({ project }: Props) {
       toast.success('Member removed');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to remove member');
+      toast.error(getErrorMessage(error, 'Failed to remove member'));
     },
   });
 

@@ -24,7 +24,7 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import { formatDate, formatRelativeTime } from '@/utils/helpers';
+import { formatDate, formatRelativeTime, getErrorMessage } from '@/utils/helpers';
 
 interface ScheduledReportModalProps {
   isOpen: boolean;
@@ -54,7 +54,7 @@ function ScheduledReportModal({ isOpen, onClose, report }: ScheduledReportModalP
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create scheduled report');
+      toast.error(getErrorMessage(error, 'Failed to create scheduled report'));
     },
   });
 
@@ -67,7 +67,7 @@ function ScheduledReportModal({ isOpen, onClose, report }: ScheduledReportModalP
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update scheduled report');
+      toast.error(getErrorMessage(error, 'Failed to update scheduled report'));
     },
   });
 
@@ -284,7 +284,7 @@ export default function ScheduledReportsPage() {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to delete report');
+      toast.error(getErrorMessage(error, 'Failed to delete report'));
     },
   });
 
@@ -295,7 +295,7 @@ export default function ScheduledReportsPage() {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to toggle report');
+      toast.error(getErrorMessage(error, 'Failed to toggle report'));
     },
   });
 
@@ -306,7 +306,7 @@ export default function ScheduledReportsPage() {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to execute report');
+      toast.error(getErrorMessage(error, 'Failed to execute report'));
     },
   });
 

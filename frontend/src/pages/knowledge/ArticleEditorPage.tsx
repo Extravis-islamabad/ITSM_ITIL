@@ -8,6 +8,7 @@ import { Card, CardBody, CardHeader } from '@/components/common/Card';
 import Button from '@/components/common/Button';
 import SimpleRichTextEditor from '@/components/knowledge/SimpleRichTextEditor';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/helpers';
 
 export default function ArticleEditorPage() {
   const { id } = useParams<{ id: string }>();
@@ -73,7 +74,7 @@ export default function ArticleEditorPage() {
       navigate('/knowledge/articles');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create article');
+      toast.error(getErrorMessage(error, 'Failed to create article'));
     },
   });
 
@@ -87,7 +88,7 @@ export default function ArticleEditorPage() {
       navigate('/knowledge/articles');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update article');
+      toast.error(getErrorMessage(error, 'Failed to update article'));
     },
   });
 
