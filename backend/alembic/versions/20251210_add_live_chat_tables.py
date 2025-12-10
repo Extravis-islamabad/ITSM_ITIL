@@ -7,22 +7,22 @@ Create Date: 2025-12-10 12:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'live_chat_001'
-down_revision = 'add_ticket_date_overrides'  # Fixed: now depends on ticket_date_overrides which was added to chain
+down_revision = 'add_ticket_date_overrides'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    # Create enum types first
-    conversation_type_enum = sa.Enum('direct', 'group', name='conversation_type_enum', create_type=False)
-    message_type_enum = sa.Enum('text', 'image', 'file', 'system', name='message_type_enum', create_type=False)
+    # Create enum types using PostgreSQL dialect (with checkfirst for safety)
+    conversation_type_enum = postgresql.ENUM('direct', 'group', name='conversation_type_enum', create_type=False)
+    conversation_type_enum.create(op.get_bind(), checkfirst=True)
 
-    # Create enums
-    op.execute("CREATE TYPE IF NOT EXISTS conversation_type_enum AS ENUM ('direct', 'group')")
-    op.execute("CREATE TYPE IF NOT EXISTS message_type_enum AS ENUM ('text', 'image', 'file', 'system')")
+    message_type_enum = postgresql.ENUM('text', 'image', 'file', 'system', name='message_type_enum', create_type=False)
+    message_type_enum.create(op.get_bind(), checkfirst=True)
 
     # Create live_conversations table
     op.create_table(
@@ -31,11 +31,11 @@ def upgrade():
         sa.Column('name', sa.String(length=255), nullable=True),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('avatar_url', sa.String(length=500), nullable=True),
-        sa.Column('conversation_type', sa.Enum('direct', 'group', name='conversation_type_enum', create_type=False), nullable=True),
+        sa.Column('conversation_type', postgresql.ENUM('direct', 'group', name='conversation_type_enum', create_type=False), nullable=True),
         sa.Column('created_by_id', sa.Integer(), nullable=False),
         sa.Column('user1_id', sa.Integer(), nullable=True),
         sa.Column('user2_id', sa.Integer(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), nullable=True, default=True),
+        sa.Column('is_active', sa.Boolean(), nullable=True, server_default='true'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('last_message_at', sa.DateTime(timezone=True), nullable=True),
@@ -52,8 +52,8 @@ def upgrade():
         sa.Column('conversation_id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('joined_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.Column('is_admin', sa.Boolean(), nullable=True, default=False),
-        sa.Column('is_muted', sa.Boolean(), nullable=True, default=False),
+        sa.Column('is_admin', sa.Boolean(), nullable=True, server_default='false'),
+        sa.Column('is_muted', sa.Boolean(), nullable=True, server_default='false'),
         sa.Column('last_read_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('last_read_message_id', sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(['conversation_id'], ['live_conversations.id'], ondelete='CASCADE'),
@@ -68,11 +68,11 @@ def upgrade():
         sa.Column('conversation_id', sa.Integer(), nullable=False),
         sa.Column('sender_id', sa.Integer(), nullable=False),
         sa.Column('content', sa.Text(), nullable=True),
-        sa.Column('message_type', sa.Enum('text', 'image', 'file', 'system', name='message_type_enum', create_type=False), nullable=True),
+        sa.Column('message_type', postgresql.ENUM('text', 'image', 'file', 'system', name='message_type_enum', create_type=False), nullable=True),
         sa.Column('reply_to_id', sa.Integer(), nullable=True),
-        sa.Column('is_edited', sa.Boolean(), nullable=True, default=False),
+        sa.Column('is_edited', sa.Boolean(), nullable=True, server_default='false'),
         sa.Column('edited_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('is_deleted', sa.Boolean(), nullable=True, default=False),
+        sa.Column('is_deleted', sa.Boolean(), nullable=True, server_default='false'),
         sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.ForeignKeyConstraint(['conversation_id'], ['live_conversations.id'], ondelete='CASCADE'),
@@ -132,7 +132,7 @@ def upgrade():
         'user_online_status',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('is_online', sa.Boolean(), nullable=True, default=False),
+        sa.Column('is_online', sa.Boolean(), nullable=True, server_default='false'),
         sa.Column('last_seen', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.Column('socket_id', sa.String(length=100), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
@@ -165,5 +165,6 @@ def downgrade():
     op.drop_index(op.f('ix_live_conversations_id'), table_name='live_conversations')
     op.drop_table('live_conversations')
 
-    op.execute('DROP TYPE IF EXISTS message_type_enum')
-    op.execute('DROP TYPE IF EXISTS conversation_type_enum')
+    # Drop enum types
+    sa.Enum(name='message_type_enum').drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='conversation_type_enum').drop(op.get_bind(), checkfirst=True)
