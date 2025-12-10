@@ -14,7 +14,6 @@ import {
   BarChart3,
   Shield,
   Headphones,
-  Zap,
   Clock,
   Users,
   FileText,
@@ -88,7 +87,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="h-screen flex bg-gray-50 overflow-hidden">
       {/* Left Side - Features Showcase */}
       <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden">
         {/* Gradient Background */}
@@ -170,7 +169,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-center justify-center px-6 py-8 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-10">
@@ -304,40 +303,6 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Divider */}
-            <div className="px-8 pb-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-4 text-gray-400 font-medium">Demo Access</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Demo Credentials */}
-            <div className="px-8 pb-8">
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-primary-50 to-accent-50 border border-primary-100">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary-600" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900">Quick Start Credentials</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-white rounded-xl border border-primary-100">
-                    <div className="text-xs text-gray-500 mb-1">Username</div>
-                    <div className="text-sm font-mono font-semibold text-gray-900">admin</div>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-primary-100">
-                    <div className="text-xs text-gray-500 mb-1">Password</div>
-                    <div className="text-sm font-mono font-semibold text-gray-900">Admin@123</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Trust Badges */}
