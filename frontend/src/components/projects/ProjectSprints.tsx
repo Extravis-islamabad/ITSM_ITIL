@@ -7,8 +7,6 @@ import {
   Calendar,
   Target,
   Clock,
-  MoreVertical,
-  Edit2,
   Trash2,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -28,7 +26,6 @@ interface Props {
 export default function ProjectSprints({ projectId }: Props) {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
 
   const { data: sprints, isLoading } = useQuery({
     queryKey: ['project-sprints', projectId],

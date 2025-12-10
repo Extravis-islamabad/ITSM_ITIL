@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter, CheckSquare } from 'lucide-react';
+import { Plus, Search, CheckSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import {
   Task,
   TaskStatus,
   TaskPriority,
-  TaskType,
   getTaskStatusColor,
   getTaskPriorityColor,
   getTaskTypeColor,

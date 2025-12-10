@@ -2,16 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   X,
-  CheckSquare,
-  Bug,
-  Star,
-  TrendingUp,
-  BookOpen,
   Clock,
-  Calendar,
-  User,
-  MessageSquare,
-  Paperclip,
   Send,
   Edit2,
   Trash2,
@@ -20,11 +11,11 @@ import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import projectService from '@/services/projectService';
 import {
-  TaskDetail,
-  TaskType,
   TaskStatus,
   TaskPriority,
   TaskUpdate,
+  TaskComment,
+  TaskActivity,
   getTaskStatusColor,
   getTaskPriorityColor,
   getTaskTypeColor,
@@ -191,7 +182,7 @@ export default function TaskDetailModal({ projectId, taskId, onClose }: Props) {
 
               {/* Comments list */}
               <div className="space-y-4">
-                {task.comments?.map((comment) => (
+                {task.comments?.map((comment: TaskComment) => (
                   <div key={comment.id} className="flex gap-3">
                     <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium">
                       {comment.user?.full_name?.charAt(0) || '?'}
@@ -213,7 +204,7 @@ export default function TaskDetailModal({ projectId, taskId, onClose }: Props) {
                 ))}
 
                 {/* Activities */}
-                {task.activities?.map((activity) => (
+                {task.activities?.map((activity: TaskActivity) => (
                   <div key={activity.id} className="flex gap-3 text-sm text-gray-500 dark:text-gray-400">
                     <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                       <Clock className="w-4 h-4" />

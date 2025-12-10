@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, GripVertical } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import {
@@ -8,8 +7,6 @@ import {
   BoardColumn,
   Sprint,
   TaskStatus,
-  getTaskPriorityColor,
-  getTaskTypeColor,
   getColumnColor,
 } from '@/types/project';
 import TaskCard from './TaskCard';

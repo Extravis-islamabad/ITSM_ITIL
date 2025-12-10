@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   LayoutGrid,
@@ -9,12 +9,10 @@ import {
   BarChart3,
   Settings,
   Plus,
-  Users,
   FolderKanban,
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
-import { ProjectDetail, getProjectStatusColor } from '@/types/project';
+import { ProjectMember, getProjectStatusColor } from '@/types/project';
 import ProjectKanbanBoard from '@/components/projects/ProjectKanbanBoard';
 import ProjectBacklog from '@/components/projects/ProjectBacklog';
 import ProjectSprints from '@/components/projects/ProjectSprints';
@@ -107,7 +105,7 @@ export default function ProjectDetailPage() {
             {/* Members avatars */}
             <div className="flex items-center">
               <div className="flex -space-x-2">
-                {project.members?.slice(0, 4).map((member) => (
+                {project.members?.slice(0, 4).map((member: ProjectMember) => (
                   <div
                     key={member.id}
                     className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-medium"

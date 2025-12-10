@@ -7,22 +7,17 @@ import {
   Plus,
   Trash2,
   GripVertical,
-  Edit2,
   UserPlus,
-  X,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import projectService from '@/services/projectService';
 import { userService } from '@/services/userService';
 import {
   ProjectDetail,
-  BoardColumn,
-  ProjectMember,
   ProjectMemberRole,
   ProjectStatus,
   getColumnColor,
   getMemberRoleColor,
-  getProjectStatusColor,
 } from '@/types/project';
 
 interface Props {

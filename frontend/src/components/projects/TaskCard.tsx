@@ -5,13 +5,11 @@ import {
   TrendingUp,
   BookOpen,
   MessageSquare,
-  Paperclip,
 } from 'lucide-react';
 import {
   Task,
   TaskType,
   TaskPriority,
-  getTaskPriorityColor,
   getTaskTypeColor,
 } from '@/types/project';
 

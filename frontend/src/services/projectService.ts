@@ -10,7 +10,6 @@ import {
   BoardColumnCreate,
   BoardColumnUpdate,
   ProjectMemberCreate,
-  TaskStatus,
   ProjectMemberRole,
 } from '@/types/project';
 

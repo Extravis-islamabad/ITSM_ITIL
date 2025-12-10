@@ -37,8 +37,6 @@ export default function ProjectReports({ projectId }: Props) {
     enabled: !!selectedSprintId,
   });
 
-  const completedSprints = sprints?.filter((s: Sprint) => s.status === 'COMPLETED') || [];
-
   // Simple bar chart component
   const renderVelocityChart = (data: VelocityReport) => {
     const maxPoints = Math.max(...data.data_points.map(d => Math.max(d.committed_points, d.completed_points)));

@@ -6,7 +6,6 @@ import {
   Search,
   FolderKanban,
   Users,
-  Calendar,
   LayoutGrid,
   List,
   ChevronRight,
