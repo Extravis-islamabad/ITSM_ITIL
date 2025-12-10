@@ -42,5 +42,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run migrations and start the application
-CMD ["sh", "-c", "echo 'Running database migrations...' && alembic upgrade head && echo 'Migrations complete. Starting server...' && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Make startup script executable
+RUN chmod +x /app/startup.sh
+
+# Run startup script (handles migrations and starts server)
+CMD ["/app/startup.sh"]
