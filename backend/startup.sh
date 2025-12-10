@@ -18,28 +18,13 @@ except Exception as e:
     print('')
 " 2>/dev/null || echo "")
 
-if [ -z "$CURRENT_VERSION" ]; then
-    echo "No alembic version found. Checking if tables exist..."
+echo "Current alembic version from DB: $CURRENT_VERSION"
 
-    # Check if sla_policies table exists (one of the first tables created)
-    TABLE_EXISTS=$(python -c "
-from sqlalchemy import create_engine, text
-from app.core.config import settings
-try:
-    engine = create_engine(settings.DATABASE_URL)
-    with engine.connect() as conn:
-        result = conn.execute(text(\"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'sla_policies')\"))
-        exists = result.fetchone()[0]
-        print('yes' if exists else 'no')
-except:
-    print('no')
-" 2>/dev/null || echo "no")
+# Always check actual schema state to determine correct version
+echo "Checking actual database schema state..."
 
-    if [ "$TABLE_EXISTS" = "yes" ]; then
-        echo "Tables exist but no alembic version. Checking which columns exist..."
-
-        # Check if first_response_at column exists (added in 20251209_first_response)
-        FIRST_RESPONSE_EXISTS=$(python -c "
+# Check if first_response_at column exists
+FIRST_RESPONSE_EXISTS=$(python -c "
 from sqlalchemy import create_engine, text
 from app.core.config import settings
 try:
@@ -52,8 +37,8 @@ except:
     print('no')
 " 2>/dev/null || echo "no")
 
-        # Check if live_conversations table exists (added in live_chat_001)
-        LIVE_CHAT_EXISTS=$(python -c "
+# Check if live_conversations table exists
+LIVE_CHAT_EXISTS=$(python -c "
 from sqlalchemy import create_engine, text
 from app.core.config import settings
 try:
@@ -66,8 +51,8 @@ except:
     print('no')
 " 2>/dev/null || echo "no")
 
-        # Check if projects table exists (added in project_mgmt_001)
-        PROJECTS_EXISTS=$(python -c "
+# Check if projects table exists
+PROJECTS_EXISTS=$(python -c "
 from sqlalchemy import create_engine, text
 from app.core.config import settings
 try:
@@ -80,29 +65,39 @@ except:
     print('no')
 " 2>/dev/null || echo "no")
 
-        echo "first_response_at column exists: $FIRST_RESPONSE_EXISTS"
-        echo "live_conversations table exists: $LIVE_CHAT_EXISTS"
-        echo "projects table exists: $PROJECTS_EXISTS"
+echo "Schema state: first_response_at=$FIRST_RESPONSE_EXISTS, live_conversations=$LIVE_CHAT_EXISTS, projects=$PROJECTS_EXISTS"
 
-        # Determine the correct stamp point based on what exists
-        if [ "$PROJECTS_EXISTS" = "yes" ]; then
-            echo "Projects table exists. Stamping at project_mgmt_001 (latest)"
-            alembic stamp project_mgmt_001
-        elif [ "$LIVE_CHAT_EXISTS" = "yes" ]; then
-            echo "Live chat tables exist. Stamping at live_chat_001"
-            alembic stamp live_chat_001
-        elif [ "$FIRST_RESPONSE_EXISTS" = "yes" ]; then
-            echo "first_response_at exists. Stamping at add_ticket_date_overrides"
-            alembic stamp add_ticket_date_overrides
-        else
-            echo "Stamping at ticket_assets_001"
-            alembic stamp ticket_assets_001
-        fi
-        echo "Database stamped successfully"
-    fi
+# Determine the correct version based on actual schema
+if [ "$PROJECTS_EXISTS" = "yes" ]; then
+    CORRECT_VERSION="project_mgmt_001"
+elif [ "$LIVE_CHAT_EXISTS" = "yes" ]; then
+    CORRECT_VERSION="live_chat_001"
+elif [ "$FIRST_RESPONSE_EXISTS" = "yes" ]; then
+    CORRECT_VERSION="add_ticket_date_overrides"
+else
+    CORRECT_VERSION="ticket_assets_001"
 fi
 
-echo "Current alembic version: $CURRENT_VERSION"
+echo "Correct version based on schema: $CORRECT_VERSION"
+
+# If current version doesn't match what schema shows, fix it
+if [ "$CURRENT_VERSION" != "$CORRECT_VERSION" ]; then
+    echo "Version mismatch! Updating alembic_version to $CORRECT_VERSION..."
+    python -c "
+from sqlalchemy import create_engine, text
+from app.core.config import settings
+engine = create_engine(settings.DATABASE_URL)
+with engine.connect() as conn:
+    # Delete existing version
+    conn.execute(text('DELETE FROM alembic_version'))
+    # Insert correct version
+    conn.execute(text(\"INSERT INTO alembic_version (version_num) VALUES ('$CORRECT_VERSION')\"))
+    conn.commit()
+    print('Alembic version updated successfully')
+"
+fi
+
+# Run migrations
 echo "Running alembic upgrade head..."
 alembic upgrade head
 
