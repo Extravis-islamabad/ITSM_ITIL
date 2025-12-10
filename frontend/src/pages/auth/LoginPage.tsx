@@ -321,7 +321,7 @@ export default function LoginPage() {
           <p className="text-center text-xs text-gray-400 mt-6">
             © 2025 SupportX. All rights reserved.
           </p>
-          {/* v1.0.1 */}
+          {/* v1.0.2 */}
         </div>
       </div>
     </div>
