@@ -1,8 +1,8 @@
 """add chat tables
 
 Revision ID: chat_001
-Revises: asset_mgmt_001
-Create Date: 2025-01-17 03:00:00.000000
+Revises: d62afd688a67
+Create Date: 2025-11-17 03:00:00.000000
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'chat_001'
-down_revision = 'asset_mgmt_001'
+down_revision = 'd62afd688a67'  # Fixed: was asset_mgmt_001, but d62afd688a67 was added between
 branch_labels = None
 depends_on = None
 

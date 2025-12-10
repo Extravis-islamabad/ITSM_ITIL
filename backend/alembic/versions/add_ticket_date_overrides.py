@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'add_ticket_date_overrides'
-down_revision = None
+down_revision = '20251209_first_response'  # Fixed: was None, integrated into main chain
 branch_labels = None
 depends_on = None
 

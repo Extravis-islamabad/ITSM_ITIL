@@ -1,7 +1,7 @@
 """add live chat tables
 
 Revision ID: live_chat_001
-Revises: chat_001
+Revises: add_ticket_date_overrides
 Create Date: 2025-12-10 12:00:00.000000
 
 """
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'live_chat_001'
-down_revision = '20251209_first_response'
+down_revision = 'add_ticket_date_overrides'  # Fixed: now depends on ticket_date_overrides which was added to chain
 branch_labels = None
 depends_on = None
 
