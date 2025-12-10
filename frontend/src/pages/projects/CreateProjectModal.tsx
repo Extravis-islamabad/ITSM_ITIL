@@ -53,9 +53,19 @@ export default function CreateProjectModal({ onClose, onSuccess }: Props) {
       return;
     }
 
-    // Validate project key format
+    // Validate project key format and length
     if (!/^[A-Z0-9]+$/.test(formData.project_key)) {
       toast.error('Project key must contain only uppercase letters and numbers');
+      return;
+    }
+
+    if (formData.project_key.length < 2) {
+      toast.error('Project key must be at least 2 characters');
+      return;
+    }
+
+    if (formData.project_key.length > 10) {
+      toast.error('Project key must be at most 10 characters');
       return;
     }
 
@@ -88,14 +98,21 @@ export default function CreateProjectModal({ onClose, onSuccess }: Props) {
   };
 
   const generateKey = (name: string): string => {
-    // Take first letters of each word, max 4 chars
-    return name
+    // Take first letters of each word, max 4 chars, min 2 chars
+    let key = name
       .split(/\s+/)
       .filter(word => word.length > 0)
       .map(word => word[0])
       .join('')
       .toUpperCase()
       .slice(0, 4);
+
+    // If key is too short, take more characters from the first word
+    if (key.length < 2 && name.length >= 2) {
+      key = name.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4);
+    }
+
+    return key || 'PR';
   };
 
   return (
