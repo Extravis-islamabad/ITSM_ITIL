@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Plus,
-  Search,
-  FolderKanban,
-  Users,
-  LayoutGrid,
-  List,
-  ChevronRight,
-} from 'lucide-react';
+  PlusIcon,
+  MagnifyingGlassIcon,
+  FolderIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
+  ChevronRightIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/outline';
+import { Card, CardBody } from '@/components/common/Card';
+import Button from '@/components/common/Button';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import EmptyState from '@/components/common/EmptyState';
 import projectService from '@/services/projectService';
 import {
   Project,
@@ -18,13 +22,20 @@ import {
 } from '@/types/project';
 import CreateProjectModal from './CreateProjectModal';
 
+type ViewMode = 'grid' | 'list';
+
 export default function ProjectsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('projects-view-mode');
+    return (saved as ViewMode) || 'grid';
+  });
+
+  const page = parseInt(searchParams.get('page') || '1');
+  const search = searchParams.get('search') || '';
+  const statusFilter = searchParams.get('status') || '';
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['projects', page, search, statusFilter],
@@ -40,6 +51,39 @@ export default function ProjectsPage() {
   const projects: Project[] = data?.items || [];
   const totalPages = data?.total_pages || 1;
 
+  // Save view mode preference
+  useEffect(() => {
+    localStorage.setItem('projects-view-mode', viewMode);
+  }, [viewMode]);
+
+  const handleSearch = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  };
+
   const handleProjectClick = (projectId: number) => {
     navigate(`/projects/${projectId}/board`);
   };
@@ -47,7 +91,7 @@ export default function ProjectsPage() {
   const getStatusBadge = (status: ProjectStatus) => {
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getProjectStatusColor(status)}`}>
-        {status}
+        {status.replace('_', ' ')}
       </span>
     );
   };
@@ -57,108 +101,116 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Manage your projects and tasks
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          New Project
-        </button>
+        <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Squares2X2Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'list'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <ListBulletIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
+
+          <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+            <PlusIcon className="h-5 w-5 mr-2" />
+            New Project
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
-        </div>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="">All Statuses</option>
-          {Object.values(ProjectStatus).map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
-
-        <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-          >
-            <LayoutGrid className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`p-2 rounded ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-          >
-            <List className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          </button>
-        </div>
-      </div>
+      <Card>
+        <CardBody>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="sm:col-span-2">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="form-input pl-10"
+                />
+              </div>
+            </div>
+            <select
+              className="form-input"
+              value={statusFilter}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              {Object.values(ProjectStatus).map((status) => (
+                <option key={status} value={status}>
+                  {status.replace('_', ' ')}
+                </option>
+              ))}
+            </select>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <LoadingSpinner />
         </div>
       ) : projects.length === 0 ? (
-        <div className="text-center py-12">
-          <FolderKanban className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No projects found
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
-            Get started by creating your first project
-          </p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Create Project
-          </button>
-        </div>
+        <Card>
+          <CardBody>
+            <EmptyState
+              icon={<FolderIcon />}
+              title="No projects found"
+              description="Get started by creating your first project"
+              action={
+                <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+                  <PlusIcon className="h-5 w-5 mr-2" />
+                  Create Project
+                </Button>
+              }
+            />
+          </CardBody>
+        </Card>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div
               key={project.id}
               onClick={() => handleProjectClick(project.id)}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 cursor-pointer hover:shadow-md hover:border-primary-500 transition-all"
+              className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:shadow-lg hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200 ease-out"
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                    <FolderKanban className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                  <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center">
+                    <FolderIcon className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
                       {project.project_key}
                     </span>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-semibold text-gray-900 mt-1">
                       {project.name}
                     </h3>
                   </div>
@@ -167,31 +219,31 @@ export default function ProjectsPage() {
               </div>
 
               {project.description && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                   {project.description}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center justify-between text-sm text-gray-500 pt-3 border-t border-gray-100">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5">
+                    <UserGroupIcon className="w-4 h-4" />
                     <span>{project.member_count}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="font-medium">{project.open_task_count}</span>
+                    <span className="font-medium text-gray-700">{project.open_task_count}</span>
                     <span>/ {project.task_count} tasks</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRightIcon className="w-5 h-5 text-gray-400" />
               </div>
 
               {project.lead && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-medium">
+                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
                     {project.lead.full_name.charAt(0)}
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-sm text-gray-600">
                     {project.lead.full_name}
                   </span>
                 </div>
@@ -200,104 +252,143 @@ export default function ProjectsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Project
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Lead
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Tasks
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Members
-                </th>
-                <th className="px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {projects.map((project) => (
-                <tr
-                  key={project.id}
-                  onClick={() => handleProjectClick(project.id)}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
-                        <FolderKanban className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {project.name}
+        /* List View */
+        <Card>
+          <CardBody>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Lead
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tasks
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Members
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50"></th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {projects.map((project) => (
+                    <tr
+                      key={project.id}
+                      onClick={() => handleProjectClick(project.id)}
+                      className="hover:bg-gray-50 cursor-pointer"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center mr-3">
+                            <FolderIcon className="w-5 h-5 text-primary-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {project.name}
+                            </div>
+                            <div className="text-xs font-mono text-gray-500">
+                              {project.project_key}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {project.project_key}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(project.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {project.lead ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-medium">
-                          {project.lead.full_name.charAt(0)}
-                        </div>
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {project.lead.full_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(project.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {project.lead ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                              {project.lead.full_name.charAt(0)}
+                            </div>
+                            <span className="text-sm text-gray-900">
+                              {project.lead.full_name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400 italic">Unassigned</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900">
+                          <span className="font-medium">{project.open_task_count}</span>
+                          <span className="text-gray-500"> / {project.task_count}</span>
                         </span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">Unassigned</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {project.open_task_count} / {project.task_count}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {project.member_count}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center gap-1.5">
+                          <UserGroupIcon className="w-4 h-4 text-gray-400" />
+                          {project.member_count}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+                <div className="flex flex-1 justify-between sm:hidden">
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing <span className="font-medium">{(page - 1) * 12 + 1}</span> to{' '}
+                      <span className="font-medium">
+                        {Math.min(page * 12, data?.total || 0)}
+                      </span>{' '}
+                      of <span className="font-medium">{data?.total || 0}</span> results
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardBody>
+        </Card>
       )}
 
       {/* Create Project Modal */}
