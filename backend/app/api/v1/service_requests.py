@@ -47,7 +47,7 @@ async def get_templates(
     templates = db.query(ServiceRequestTemplate).filter(
         ServiceRequestTemplate.is_active == True
     ).all()
-    
+
     return [{
         "id": t.id,
         "name": t.name,
@@ -57,7 +57,145 @@ async def get_templates(
         "icon": t.icon,
         "estimated_days": t.estimated_days,
         "requires_approval": t.requires_approval,
+        "is_active": t.is_active,
     } for t in templates]
+
+
+@router.get("/templates/all")
+async def get_all_templates(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all service request templates (including inactive) for admin"""
+    if not current_user.is_superuser and not is_manager_or_above(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    templates = db.query(ServiceRequestTemplate).all()
+
+    return [{
+        "id": t.id,
+        "name": t.name,
+        "description": t.description,
+        "category_id": t.category_id,
+        "category_name": t.category.name if t.category else None,
+        "icon": t.icon,
+        "estimated_days": t.estimated_days,
+        "requires_approval": t.requires_approval,
+        "is_active": t.is_active,
+    } for t in templates]
+
+
+@router.post("/templates")
+async def create_template(
+    name: str,
+    description: str,
+    category_id: Optional[int] = None,
+    icon: Optional[str] = "📋",
+    estimated_days: int = 3,
+    requires_approval: bool = False,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new service request template (Admin only)"""
+    if not current_user.is_superuser and not is_manager_or_above(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    template = ServiceRequestTemplate(
+        name=name,
+        description=description,
+        category_id=category_id,
+        icon=icon or "📋",
+        estimated_days=estimated_days,
+        requires_approval=requires_approval,
+        is_active=True
+    )
+    db.add(template)
+    db.commit()
+    db.refresh(template)
+
+    return {
+        "id": template.id,
+        "name": template.name,
+        "description": template.description,
+        "category_id": template.category_id,
+        "category_name": template.category.name if template.category else None,
+        "icon": template.icon,
+        "estimated_days": template.estimated_days,
+        "requires_approval": template.requires_approval,
+        "is_active": template.is_active,
+    }
+
+
+@router.put("/templates/{template_id}")
+async def update_template(
+    template_id: int,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    category_id: Optional[int] = None,
+    icon: Optional[str] = None,
+    estimated_days: Optional[int] = None,
+    requires_approval: Optional[bool] = None,
+    is_active: Optional[bool] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update a service request template (Admin only)"""
+    if not current_user.is_superuser and not is_manager_or_above(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    template = db.query(ServiceRequestTemplate).filter(ServiceRequestTemplate.id == template_id).first()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    if name is not None:
+        template.name = name
+    if description is not None:
+        template.description = description
+    if category_id is not None:
+        template.category_id = category_id
+    if icon is not None:
+        template.icon = icon
+    if estimated_days is not None:
+        template.estimated_days = estimated_days
+    if requires_approval is not None:
+        template.requires_approval = requires_approval
+    if is_active is not None:
+        template.is_active = is_active
+
+    db.commit()
+    db.refresh(template)
+
+    return {
+        "id": template.id,
+        "name": template.name,
+        "description": template.description,
+        "category_id": template.category_id,
+        "category_name": template.category.name if template.category else None,
+        "icon": template.icon,
+        "estimated_days": template.estimated_days,
+        "requires_approval": template.requires_approval,
+        "is_active": template.is_active,
+    }
+
+
+@router.delete("/templates/{template_id}")
+async def delete_template(
+    template_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete a service request template (Admin only)"""
+    if not current_user.is_superuser and not is_manager_or_above(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    template = db.query(ServiceRequestTemplate).filter(ServiceRequestTemplate.id == template_id).first()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    db.delete(template)
+    db.commit()
+
+    return {"message": "Template deleted successfully"}
 
 @router.get("")
 async def get_service_requests(

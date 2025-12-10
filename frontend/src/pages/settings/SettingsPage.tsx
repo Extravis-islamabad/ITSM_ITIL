@@ -8,6 +8,7 @@ import {
   TagIcon,
   BuildingOfficeIcon,
   CloudArrowDownIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 
 interface SettingSection {
@@ -39,6 +40,13 @@ const settingSections: SettingSection[] = [
     icon: TagIcon,
     path: '/settings/categories',
     color: 'text-green-600 bg-green-100',
+  },
+  {
+    title: 'Service Request Templates',
+    description: 'Manage service catalog templates for requests',
+    icon: ClipboardDocumentListIcon,
+    path: '/settings/service-templates',
+    color: 'text-teal-600 bg-teal-100',
   },
   {
     title: 'Groups',

@@ -73,6 +73,7 @@ import TicketCategoriesPage from "@/pages/settings/CategoriesPage";
 import GroupsPage from "@/pages/settings/GroupsPage";
 import SystemSettingsPage from "@/pages/settings/SystemSettingsPage";
 import IntegrationsPage from "@/pages/settings/IntegrationsPage";
+import ServiceTemplatesPage from "@/pages/settings/ServiceTemplatesPage";
 
 // Live Chat
 import ChatPage from "@/pages/chat/ChatPage";
@@ -263,6 +264,11 @@ function App() {
               <Route path="settings/integrations" element={
                 <RoleProtectedRoute requiredRole="admin">
                   <IntegrationsPage />
+                </RoleProtectedRoute>
+              } />
+              <Route path="settings/service-templates" element={
+                <RoleProtectedRoute requiredRole="manager+">
+                  <ServiceTemplatesPage />
                 </RoleProtectedRoute>
               } />
             </Route>
