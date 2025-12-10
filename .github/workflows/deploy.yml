@@ -86,7 +86,6 @@ jobs:
     name: Deploy to ECS
     runs-on: ubuntu-latest
     needs: build-and-push
-    environment: ${{ github.event.inputs.environment || 'production' }}
 
     steps:
       - name: Checkout code
@@ -129,46 +128,15 @@ jobs:
             --cluster ${{ env.ECS_CLUSTER }} \
             --services ${{ env.ECS_SERVICE_FRONTEND }}
 
-  # Run Database Migrations
-  migrate:
-    name: Run Database Migrations
-    runs-on: ubuntu-latest
-    needs: deploy
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Run migrations via ECS task
-        run: |
-          aws ecs run-task \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --task-definition itsm-migration-task \
-            --launch-type FARGATE \
-            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_IDS }}],securityGroups=[${{ secrets.SECURITY_GROUP_ID }}]}"
-
-  # Post-deployment notification
+  # Post-deployment notification (optional)
   notify:
     name: Send Notification
     runs-on: ubuntu-latest
-    needs: [deploy, migrate]
+    needs: deploy
     if: always()
 
     steps:
-      - name: Send Slack notification
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: |
-            Deployment to ${{ github.event.inputs.environment || 'production' }}
-            Status: ${{ needs.deploy.result }}
-            Commit: ${{ github.sha }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Deployment complete
+        run: |
+          echo "Deployment completed with status: ${{ needs.deploy.result }}"
+          echo "Commit: ${{ github.sha }}"
