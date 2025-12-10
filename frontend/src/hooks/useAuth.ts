@@ -17,7 +17,7 @@ export const useAuth = (): UseAuthReturn => {
   const { user, isAuthenticated, isLoading: storeLoading, login, logout, setUser } = useAuthStore();
   const queryClient = useQueryClient();
 
-  const { data: currentUser, isLoading: queryLoading, isError, refetch } = useQuery({
+  const { data: currentUser, isLoading: queryLoading, isError } = useQuery({
     queryKey: ['currentUser'],
     queryFn: authService.getCurrentUser,
     enabled: isAuthenticated && !user,

@@ -8,7 +8,7 @@ import {
   EXPORT_FORMATS,
   DAYS_OF_WEEK,
 } from '@/services/scheduledReportService';
-import { Card, CardBody, CardHeader } from '@/components/common/Card';
+import { Card, CardBody } from '@/components/common/Card';
 import Button from '@/components/common/Button';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import {
@@ -22,8 +22,6 @@ import {
   PencilIcon,
   DocumentArrowDownIcon,
   CheckCircleIcon,
-  XCircleIcon,
-  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { formatDate, formatRelativeTime } from '@/utils/helpers';

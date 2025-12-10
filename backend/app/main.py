@@ -82,6 +82,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root():
     return {"message": "ITSM Platform API", "version": settings.APP_VERSION}
 
+@app.get("/health")
+async def health():
+    """Simple health check endpoint for load balancers and container orchestration"""
+    return {"status": "healthy"}
+
 @app.get("/api/v1/health")
 async def health_check():
     return {"status": "healthy", "version": settings.APP_VERSION}

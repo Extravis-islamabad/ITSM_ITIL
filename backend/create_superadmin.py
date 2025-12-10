@@ -298,6 +298,7 @@ def create_default_department(db) -> Department:
 
     department = Department(
         name="IT Department",
+        code="IT",
         description="Information Technology Department",
         is_active=True
     )
@@ -315,8 +316,9 @@ def main():
     # Check if database connection works
     print("\n[1/5] Checking database connection...")
     try:
+        from sqlalchemy import text
         db = SessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         print("  Database connection successful!")
     except Exception as e:
         print(f"  ERROR: Cannot connect to database: {e}")

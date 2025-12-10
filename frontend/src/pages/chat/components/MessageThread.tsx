@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import {
   Check,
   CheckCheck,
-  MoreHorizontal,
   Reply,
   Pencil,
   Trash2,

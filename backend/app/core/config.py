@@ -38,9 +38,17 @@ class Settings(BaseSettings):
         extra = "allow"  # ✅ Add this to allow extra fields
     
     def get_allowed_origins(self) -> List[str]:
+        origins = []
         if isinstance(self.ALLOWED_ORIGINS, str):
-            return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(',')]
-        return self.ALLOWED_ORIGINS
+            origins = [origin.strip() for origin in self.ALLOWED_ORIGINS.split(',') if origin.strip()]
+        else:
+            origins = self.ALLOWED_ORIGINS
+
+        # In production, also add the frontend URL if configured
+        if self.FRONTEND_URL and self.FRONTEND_URL not in origins:
+            origins.append(self.FRONTEND_URL)
+
+        return origins
 
 @lru_cache()
 def get_settings() -> Settings:

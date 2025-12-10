@@ -10,7 +10,9 @@
       "Bash(find:*)",
       "Bash(.venvScriptspython.exe migrationsadd_live_chat_tables.py)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(aws logs get-log-events:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

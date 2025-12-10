@@ -36,7 +36,7 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
       if (debouncedSearch && debouncedSearch.length >= 1) {
         return { items: await chatService.searchUsers(debouncedSearch) };
       }
-      return userService.getUsers(1, 100);
+      return userService.getUsers({ page: 1, page_size: 100 });
     },
   });
 
@@ -225,7 +225,7 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
               </div>
             ) : (
               <div className="space-y-1">
-                {filteredUsers.map((user) => {
+                {filteredUsers.map((user: { id: number; full_name: string; email: string; avatar_url?: string }) => {
                   const isSelected = isUserSelected(user.id);
                   return (
                     <button

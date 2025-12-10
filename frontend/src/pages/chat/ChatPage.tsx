@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   MessageSquare,
   Search,
   Plus,
   Users,
-  Settings,
-  MoreVertical,
-  Phone,
-  Video,
   Info,
   ArrowLeft,
 } from 'lucide-react';
-import chatService, { Conversation, Message, getAvatarUrl } from '../../services/chatService';
+import chatService, { Conversation, getAvatarUrl } from '../../services/chatService';
 import useWebSocket from '../../hooks/useWebSocket';
 import { useAuth } from '../../hooks/useAuth';
 import ConversationList from './components/ConversationList';

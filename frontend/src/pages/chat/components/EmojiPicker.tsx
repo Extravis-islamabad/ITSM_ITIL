@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 interface EmojiPickerProps {
   onSelect: (emoji: string) => void;

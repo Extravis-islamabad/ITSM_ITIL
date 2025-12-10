@@ -262,7 +262,7 @@ Enter when prompted:
 |------|-------|
 | `AWS_ACCESS_KEY_ID` | Your IAM user access key ID |
 | `AWS_SECRET_ACCESS_KEY` | Your IAM user secret access key |
-| `VITE_API_URL` | `https://api.yourdomain.com/api/v1` (update later with your actual domain) |
+| `VITE_API_URL` | Leave empty for now - update after creating Load Balancer (e.g., `http://itsm-alb-xxxxx.us-east-1.elb.amazonaws.com/api/v1`) |
 
 ---
 
@@ -627,6 +627,46 @@ The `create_superadmin.py` script will prompt you for:
 
 ## Domain and SSL Setup
 
+> **No Domain?** Skip to [Deployment Without Domain](#deployment-without-domain-http-only) section below.
+
+### Deployment WITHOUT Domain (HTTP Only)
+
+If you don't have a domain, you can use the Load Balancer's DNS name directly:
+
+1. **Get your ALB DNS name:**
+   - Go to EC2 → Load Balancers → Select `itsm-alb`
+   - Copy the DNS name (e.g., `itsm-alb-1234567890.us-east-1.elb.amazonaws.com`)
+
+2. **Update GitHub Secret `VITE_API_URL`:**
+   ```
+   http://itsm-alb-1234567890.us-east-1.elb.amazonaws.com/api/v1
+   ```
+
+3. **Configure ALB Listener Rules:**
+   - Go to EC2 → Load Balancers → `itsm-alb` → Listeners
+   - Edit HTTP:80 listener → View/edit rules
+   - Add rule:
+     - Condition: Path pattern is `/api/*`
+     - Action: Forward to `itsm-backend-tg`
+   - Default rule should forward to `itsm-frontend-tg`
+
+4. **Update Backend ALLOWED_ORIGINS:**
+   In your ECS task definition or environment, set:
+   ```
+   ALLOWED_ORIGINS=http://itsm-alb-1234567890.us-east-1.elb.amazonaws.com
+   ```
+
+5. **Access your application:**
+   ```
+   http://itsm-alb-1234567890.us-east-1.elb.amazonaws.com
+   ```
+
+> **Note:** Without a domain, you cannot use HTTPS. This is fine for testing but not recommended for production with sensitive data.
+
+---
+
+### Deployment WITH Domain (HTTPS - Recommended for Production)
+
 ### Step 1: Get a Domain Name
 
 You can purchase a domain from:
@@ -722,8 +762,10 @@ docker tag itsm-backend:latest YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/i
 docker push YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/itsm-backend:latest
 
 :: Build and push frontend (with API URL)
+:: Replace YOUR_ALB_DNS with your actual Load Balancer DNS name
+:: Example: itsm-alb-1234567890.us-east-1.elb.amazonaws.com
 cd ..\frontend
-docker build --build-arg VITE_API_URL=https://api.yourdomain.com/api/v1 -t itsm-frontend .
+docker build --build-arg VITE_API_URL=http://YOUR_ALB_DNS/api/v1 -t itsm-frontend .
 docker tag itsm-frontend:latest YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/itsm-frontend:latest
 docker push YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/itsm-frontend:latest
 

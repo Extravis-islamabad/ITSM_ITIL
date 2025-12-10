@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { chatService, Message, Conversation } from '../services/chatService';
+import { chatService, Message } from '../services/chatService';
 
 export type WebSocketMessageType =
   | 'new_message'

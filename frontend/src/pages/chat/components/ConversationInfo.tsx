@@ -5,15 +5,14 @@ import {
   Users,
   UserPlus,
   LogOut,
-  Settings,
   Trash2,
   Crown,
-  MoreVertical,
   Search,
   Check,
   Loader2,
 } from 'lucide-react';
-import chatService, { Conversation, Participant, getAvatarUrl } from '../../../services/chatService';
+import chatService, { Conversation, getAvatarUrl } from '../../../services/chatService';
+import { User } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
 import { userService } from '../../../services/userService';
 
@@ -42,7 +41,7 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
   // Fetch users for adding members
   const { data: usersData } = useQuery({
     queryKey: ['users'],
-    queryFn: () => userService.getUsers(1, 100),
+    queryFn: () => userService.getUsers({ page: 1, page_size: 100 }),
     enabled: showAddMembers,
   });
 
@@ -91,8 +90,8 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
   // Filter users for adding (exclude existing participants)
   const existingParticipantIds = conversation.participants.map((p) => p.id);
   const availableUsers = usersData?.items.filter(
-    (user) => !existingParticipantIds.includes(user.id)
-  ).filter((user) => {
+    (user: User) => !existingParticipantIds.includes(user.id)
+  ).filter((user: User) => {
     if (!searchQuery) return true;
     return user.full_name.toLowerCase().includes(searchQuery.toLowerCase());
   }) || [];
@@ -236,7 +235,7 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
                 </div>
 
                 <div className="max-h-40 overflow-y-auto space-y-1">
-                  {availableUsers.map((user) => (
+                  {availableUsers.map((user: User) => (
                     <button
                       key={user.id}
                       onClick={() => toggleUserSelection(user.id)}
@@ -310,7 +309,7 @@ const ConversationInfo: React.FC<ConversationInfoProps> = ({
                         {participant.id === currentUserId && ' (You)'}
                       </span>
                       {participant.id === conversation.created_by_id && (
-                        <Crown className="h-3.5 w-3.5 text-yellow-500" title="Admin" />
+                        <Crown className="h-3.5 w-3.5 text-yellow-500" />
                       )}
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">

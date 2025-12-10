@@ -5,7 +5,6 @@ import {
   Paperclip,
   Smile,
   X,
-  Image as ImageIcon,
   FileText,
   Loader2,
 } from 'lucide-react';

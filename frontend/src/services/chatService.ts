@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const BASE_URL = API_URL.replace('/api/v1', '');
@@ -105,37 +105,27 @@ export interface SendMessageData {
   reply_to_id?: number;
 }
 
-const getAuthHeader = () => {
-  const token = localStorage.getItem('access_token');
-  return { Authorization: `Bearer ${token}` };
-};
-
 export const chatService = {
   // Conversations
   getConversations: async (page = 1, pageSize = 20): Promise<ConversationListResponse> => {
-    const response = await axios.get<ConversationListResponse>(
-      `${API_URL}/chat/conversations`,
-      {
-        params: { page, page_size: pageSize },
-        headers: getAuthHeader(),
-      }
+    const response = await axiosInstance.get<ConversationListResponse>(
+      '/chat/conversations',
+      { params: { page, page_size: pageSize } }
     );
     return response.data;
   },
 
   getConversation: async (conversationId: number): Promise<Conversation> => {
-    const response = await axios.get<Conversation>(
-      `${API_URL}/chat/conversations/${conversationId}`,
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.get<Conversation>(
+      `/chat/conversations/${conversationId}`
     );
     return response.data;
   },
 
   createConversation: async (data: CreateConversationData): Promise<Conversation> => {
-    const response = await axios.post<Conversation>(
-      `${API_URL}/chat/conversations`,
-      data,
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.post<Conversation>(
+      '/chat/conversations',
+      data
     );
     return response.data;
   },
@@ -144,10 +134,9 @@ export const chatService = {
     conversationId: number,
     data: { name?: string; description?: string }
   ): Promise<Conversation> => {
-    const response = await axios.put<Conversation>(
-      `${API_URL}/chat/conversations/${conversationId}`,
-      data,
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.put<Conversation>(
+      `/chat/conversations/${conversationId}`,
+      data
     );
     return response.data;
   },
@@ -158,12 +147,9 @@ export const chatService = {
     page = 1,
     pageSize = 50
   ): Promise<MessageListResponse> => {
-    const response = await axios.get<MessageListResponse>(
-      `${API_URL}/chat/conversations/${conversationId}/messages`,
-      {
-        params: { page, page_size: pageSize },
-        headers: getAuthHeader(),
-      }
+    const response = await axiosInstance.get<MessageListResponse>(
+      `/chat/conversations/${conversationId}/messages`,
+      { params: { page, page_size: pageSize } }
     );
     return response.data;
   },
@@ -172,27 +158,23 @@ export const chatService = {
     conversationId: number,
     data: SendMessageData
   ): Promise<Message> => {
-    const response = await axios.post<Message>(
-      `${API_URL}/chat/conversations/${conversationId}/messages`,
-      data,
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.post<Message>(
+      `/chat/conversations/${conversationId}/messages`,
+      data
     );
     return response.data;
   },
 
   editMessage: async (messageId: number, content: string): Promise<Message> => {
-    const response = await axios.put<Message>(
-      `${API_URL}/chat/messages/${messageId}`,
-      { content },
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.put<Message>(
+      `/chat/messages/${messageId}`,
+      { content }
     );
     return response.data;
   },
 
   deleteMessage: async (messageId: number): Promise<void> => {
-    await axios.delete(`${API_URL}/chat/messages/${messageId}`, {
-      headers: getAuthHeader(),
-    });
+    await axiosInstance.delete(`/chat/messages/${messageId}`);
   },
 
   // Attachments
@@ -203,15 +185,10 @@ export const chatService = {
   ): Promise<Attachment> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await axios.post<Attachment>(
-      `${API_URL}/chat/conversations/${conversationId}/messages/${messageId}/attachments`,
+    const response = await axiosInstance.post<Attachment>(
+      `/chat/conversations/${conversationId}/messages/${messageId}/attachments`,
       formData,
-      {
-        headers: {
-          ...getAuthHeader(),
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;
   },
@@ -229,41 +206,30 @@ export const chatService = {
     files.forEach((file) => {
       formData.append('files', file);
     });
-    const response = await axios.post<Message>(
-      `${API_URL}/chat/conversations/${conversationId}/messages/with-attachments`,
+    const response = await axiosInstance.post<Message>(
+      `/chat/conversations/${conversationId}/messages/with-attachments`,
       formData,
-      {
-        headers: {
-          ...getAuthHeader(),
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;
   },
 
   // Reactions
   addReaction: async (messageId: number, emoji: string): Promise<void> => {
-    await axios.post(
-      `${API_URL}/chat/messages/${messageId}/reactions`,
-      { emoji },
-      { headers: getAuthHeader() }
-    );
+    await axiosInstance.post(`/chat/messages/${messageId}/reactions`, { emoji });
   },
 
   removeReaction: async (messageId: number, emoji: string): Promise<void> => {
-    await axios.delete(
-      `${API_URL}/chat/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`,
-      { headers: getAuthHeader() }
+    await axiosInstance.delete(
+      `/chat/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`
     );
   },
 
   // Read receipts
   markAsRead: async (conversationId: number, messageId: number): Promise<void> => {
-    await axios.post(
-      `${API_URL}/chat/conversations/${conversationId}/messages/${messageId}/read`,
-      {},
-      { headers: getAuthHeader() }
+    await axiosInstance.post(
+      `/chat/conversations/${conversationId}/messages/${messageId}/read`,
+      {}
     );
   },
 
@@ -272,10 +238,9 @@ export const chatService = {
     conversationId: number,
     userIds: number[]
   ): Promise<Conversation> => {
-    const response = await axios.post<Conversation>(
-      `${API_URL}/chat/conversations/${conversationId}/participants`,
-      { user_ids: userIds },
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.post<Conversation>(
+      `/chat/conversations/${conversationId}/participants`,
+      { user_ids: userIds }
     );
     return response.data;
   },
@@ -284,26 +249,20 @@ export const chatService = {
     conversationId: number,
     userId: number
   ): Promise<void> => {
-    await axios.delete(
-      `${API_URL}/chat/conversations/${conversationId}/participants/${userId}`,
-      { headers: getAuthHeader() }
+    await axiosInstance.delete(
+      `/chat/conversations/${conversationId}/participants/${userId}`
     );
   },
 
   leaveConversation: async (conversationId: number): Promise<void> => {
-    await axios.post(
-      `${API_URL}/chat/conversations/${conversationId}/leave`,
-      {},
-      { headers: getAuthHeader() }
-    );
+    await axiosInstance.post(`/chat/conversations/${conversationId}/leave`, {});
   },
 
   // Online status
   getOnlineUsers: async (userIds: number[]): Promise<Record<number, boolean>> => {
-    const response = await axios.post<Record<number, boolean>>(
-      `${API_URL}/chat/users/online-status`,
-      { user_ids: userIds },
-      { headers: getAuthHeader() }
+    const response = await axiosInstance.post<Record<number, boolean>>(
+      '/chat/users/online-status',
+      { user_ids: userIds }
     );
     return response.data;
   },
@@ -311,12 +270,9 @@ export const chatService = {
   // Search users for new conversation
   searchUsers: async (query: string): Promise<Participant[]> => {
     if (!query || query.length < 1) return [];
-    const response = await axios.get<Participant[]>(
-      `${API_URL}/chat/users/search`,
-      {
-        params: { q: query },
-        headers: getAuthHeader(),
-      }
+    const response = await axiosInstance.get<Participant[]>(
+      '/chat/users/search',
+      { params: { q: query } }
     );
     return response.data;
   },

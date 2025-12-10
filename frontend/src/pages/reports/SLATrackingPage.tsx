@@ -14,7 +14,6 @@ import {
   Cell,
 } from 'recharts';
 import { Card, CardBody, CardHeader } from '@/components/common/Card';
-import Button from '@/components/common/Button';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import reportingService from '@/services/reportingService';
 import {
@@ -22,8 +21,6 @@ import {
   FolderIcon,
   ChartBarIcon,
   CalendarIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
 } from '@heroicons/react/24/outline';
 
 type ViewTab = 'customer' | 'project' | 'percentage';
