@@ -272,8 +272,12 @@ function App() {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuth();
 
+  // Check if we have a token in localStorage (for initial page load)
+  const hasToken = !!localStorage.getItem('access_token');
+
   // Show loading while determining auth state
-  if (isLoading) {
+  // Also show loading if we have a token but auth state isn't resolved yet
+  if (isLoading || (hasToken && !isAuthenticated && !user)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -281,18 +285,33 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
+  // Redirect to login if not authenticated and no token
+  if (!isAuthenticated && !hasToken) {
     return <Navigate to="/login" replace />;
   }
 
-  // Ensure user data is loaded before rendering protected content
-  if (!user) {
+  // If authenticated but no user data yet, show loading
+  // This happens right after login before user data is fully loaded
+  if (isAuthenticated && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
+  }
+
+  // If we have a token but not authenticated (store not synced yet), wait
+  if (hasToken && !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  // Final check - redirect if truly not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

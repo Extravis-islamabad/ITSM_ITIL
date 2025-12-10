@@ -13,7 +13,7 @@ interface AuthState {
   setUser: (user: User) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: !!localStorage.getItem('access_token'),
   isLoading: false,
@@ -24,16 +24,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const response = await authService.login(username, password);
 
-      // Store tokens
+      // Store tokens FIRST
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
 
-      // Set user
+      // Then set user and auth state together
       set({
         user: response.user,
         isAuthenticated: true,
         isLoading: false,
       });
+
+      // Small delay to ensure state is propagated before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       toast.success('Welcome back!');
     } catch (error: any) {
