@@ -3,7 +3,7 @@ Project Management Schemas
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 
 
@@ -132,8 +132,8 @@ class ProjectMemberResponse(BaseModel):
 class SprintBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     goal: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class SprintCreate(SprintBase):
@@ -143,8 +143,8 @@ class SprintCreate(SprintBase):
 class SprintUpdate(BaseModel):
     name: Optional[str] = None
     goal: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class SprintResponse(SprintBase):
@@ -239,7 +239,7 @@ class TaskBase(BaseModel):
     priority: TaskPriorityEnum = TaskPriorityEnum.MEDIUM
     story_points: Optional[int] = None
     time_estimate: Optional[float] = None
-    due_date: Optional[datetime] = None
+    due_date: Optional[date] = None
 
 
 class TaskCreate(TaskBase):
@@ -260,7 +260,7 @@ class TaskUpdate(BaseModel):
     story_points: Optional[int] = None
     time_estimate: Optional[float] = None
     time_spent: Optional[float] = None
-    due_date: Optional[datetime] = None
+    due_date: Optional[date] = None
     position: Optional[int] = None
 
 
@@ -313,8 +313,8 @@ class ProjectBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     project_key: str = Field(..., min_length=2, max_length=10, pattern="^[A-Z0-9]+$")
     description: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class ProjectCreate(ProjectBase):
@@ -326,8 +326,8 @@ class ProjectUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[ProjectStatusEnum] = None
     lead_id: Optional[int] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class ProjectResponse(ProjectBase):

@@ -55,7 +55,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: Props) {
 
     // Validate project key format and length
     if (!/^[A-Z0-9]+$/.test(formData.project_key)) {
-      toast.error('Project key must contain only uppercase letters and numbers');
+      toast.error('Project key must contain only uppercase letters and numbers (no hyphens). Tasks will be named as KEY-1, KEY-2, etc.');
       return;
     }
 
