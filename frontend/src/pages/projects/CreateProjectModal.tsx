@@ -70,13 +70,14 @@ export default function CreateProjectModal({ onClose, onSuccess }: Props) {
     }
 
     // Clean the data - remove undefined/empty values
+    // Convert date strings to datetime format (add T00:00:00 for backend)
     const cleanedData: ProjectCreate = {
       name: formData.name.trim(),
       project_key: formData.project_key.trim(),
       description: formData.description?.trim() || undefined,
       lead_id: formData.lead_id || undefined,
-      start_date: formData.start_date || undefined,
-      end_date: formData.end_date || undefined,
+      start_date: formData.start_date ? `${formData.start_date}T00:00:00` : undefined,
+      end_date: formData.end_date ? `${formData.end_date}T00:00:00` : undefined,
     };
 
     createMutation.mutate(cleanedData);

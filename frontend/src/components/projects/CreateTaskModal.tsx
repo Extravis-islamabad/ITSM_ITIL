@@ -56,7 +56,15 @@ export default function CreateTaskModal({ projectId, sprintId, onClose, onSucces
       return;
     }
 
-    createMutation.mutate(formData);
+    // Convert date string to datetime format for backend
+    const cleanedData: TaskCreate = {
+      ...formData,
+      title: formData.title.trim(),
+      description: formData.description?.trim() || undefined,
+      due_date: formData.due_date ? `${formData.due_date}T00:00:00` : undefined,
+    };
+
+    createMutation.mutate(cleanedData);
   };
 
   return (

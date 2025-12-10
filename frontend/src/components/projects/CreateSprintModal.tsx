@@ -39,7 +39,15 @@ export default function CreateSprintModal({ projectId, onClose, onSuccess }: Pro
       return;
     }
 
-    createMutation.mutate(formData);
+    // Convert date strings to datetime format for backend
+    const cleanedData: SprintCreate = {
+      name: formData.name.trim(),
+      goal: formData.goal?.trim() || undefined,
+      start_date: formData.start_date ? `${formData.start_date}T00:00:00` : undefined,
+      end_date: formData.end_date ? `${formData.end_date}T00:00:00` : undefined,
+    };
+
+    createMutation.mutate(cleanedData);
   };
 
   return (
