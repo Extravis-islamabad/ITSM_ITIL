@@ -1,4 +1,5 @@
 from typing import Optional
+from app.core.config import settings
 
 class EmailTemplates:
     
@@ -192,20 +193,20 @@ class EmailTemplates:
             {content}
         </div>
         <div class="footer">
-            <p class="footer-text"><strong>SupportX</strong> - Enterprise IT Service Management</p>
+            <p class="footer-text"><strong>{settings.COMPANY_NAME}</strong> - Enterprise IT Service Management</p>
             <p class="footer-text">Streamlining your IT operations with intelligent automation</p>
             <div class="footer-links">
-                <a href="http://localhost:5173" class="footer-link">Dashboard</a>
-                <a href="http://localhost:5173/help" class="footer-link">Help Center</a>
-                <a href="http://localhost:5173/settings" class="footer-link">Settings</a>
+                <a href="{settings.APP_URL}" class="footer-link">Dashboard</a>
+                <a href="{settings.APP_URL}/kb" class="footer-link">Help Center</a>
+                <a href="{settings.APP_URL}/settings" class="footer-link">Settings</a>
             </div>
             <div class="divider"></div>
             <p class="footer-text">
-                You're receiving this email because you're a user of SupportX.<br>
-                To manage your notification preferences, <a href="http://localhost:5173/settings/notifications" class="footer-link">click here</a>.
+                You're receiving this email because you're a user of {settings.COMPANY_NAME}.<br>
+                To manage your notification preferences, <a href="{settings.APP_URL}/settings/notifications" class="footer-link">click here</a>.
             </p>
             <p class="footer-text" style="margin-top: 20px; font-size: 11px; color: #9ca3af;">
-                © 2025 SupportX. All rights reserved.<br>
+                © 2025 {settings.COMPANY_NAME}. All rights reserved.<br>
                 This is an automated message, please do not reply to this email.
             </p>
         </div>

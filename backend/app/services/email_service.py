@@ -12,7 +12,7 @@ class EmailService:
     def send_email(to_emails: List[str], subject: str, body: str, html_body: str = None):
         try:
             msg = MIMEMultipart('alternative')
-            msg['From'] = settings.SMTP_FROM
+            msg['From'] = f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>"
             msg['To'] = ', '.join(to_emails)
             msg['Subject'] = subject
             
