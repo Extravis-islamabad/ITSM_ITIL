@@ -16,6 +16,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   ChatBubbleLeftRightIcon,
+  FolderIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -85,6 +86,13 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       href: '/chat',
       icon: ChatBubbleLeftRightIcon,
       // All authenticated users can use chat
+      show: !!userRole,
+    },
+    {
+      name: 'Projects',
+      href: '/projects',
+      icon: FolderIcon,
+      // All authenticated users can access projects
       show: !!userRole,
     },
     {

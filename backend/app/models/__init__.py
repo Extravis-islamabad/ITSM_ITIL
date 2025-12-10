@@ -49,6 +49,11 @@ from app.models.integration import (
     Integration, ImportJob, ImportedItem,
     IntegrationType, IntegrationStatus, ImportStatus
 )
+from app.models.project import (
+    Project, BoardColumn, ProjectMember, Sprint, Task,
+    TaskComment, TaskActivity, TaskAttachment,
+    ProjectStatus, SprintStatus, TaskStatus, TaskPriority, TaskType, ProjectMemberRole
+)
 
 __all__ = [
     "Base",
@@ -122,4 +127,18 @@ __all__ = [
     'IntegrationType',
     'IntegrationStatus',
     'ImportStatus',
+    'Project',
+    'BoardColumn',
+    'ProjectMember',
+    'Sprint',
+    'Task',
+    'TaskComment',
+    'TaskActivity',
+    'TaskAttachment',
+    'ProjectStatus',
+    'SprintStatus',
+    'TaskStatus',
+    'TaskPriority',
+    'TaskType',
+    'ProjectMemberRole',
 ]

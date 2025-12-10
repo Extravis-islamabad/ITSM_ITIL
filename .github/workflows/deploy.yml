@@ -118,15 +118,31 @@ jobs:
 
       - name: Wait for Backend deployment
         run: |
-          aws ecs wait services-stable \
+          echo "Waiting for backend service to stabilize..."
+          timeout 600 aws ecs wait services-stable \
             --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE_BACKEND }}
+            --services ${{ env.ECS_SERVICE_BACKEND }} || {
+              echo "Backend service did not stabilize. Checking service status..."
+              aws ecs describe-services \
+                --cluster ${{ env.ECS_CLUSTER }} \
+                --services ${{ env.ECS_SERVICE_BACKEND }} \
+                --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,events:events[0:5]}'
+              exit 1
+            }
 
       - name: Wait for Frontend deployment
         run: |
-          aws ecs wait services-stable \
+          echo "Waiting for frontend service to stabilize..."
+          timeout 600 aws ecs wait services-stable \
             --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE_FRONTEND }}
+            --services ${{ env.ECS_SERVICE_FRONTEND }} || {
+              echo "Frontend service did not stabilize. Checking service status..."
+              aws ecs describe-services \
+                --cluster ${{ env.ECS_CLUSTER }} \
+                --services ${{ env.ECS_SERVICE_FRONTEND }} \
+                --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,events:events[0:5]}'
+              exit 1
+            }
 
   # Post-deployment notification (optional)
   notify:

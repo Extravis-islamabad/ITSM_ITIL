@@ -46,7 +46,7 @@ app.add_middleware(
 )
 
 # Import routers HERE (after app is created) to avoid circular imports
-from app.api.v1 import auth, users, tickets, roles, categories, dashboard, service_requests, reports, changes, change_approvals, notifications, knowledge, assets, sla_policies, chatbot, problems, groups, integrations, scheduled_reports, live_chat
+from app.api.v1 import auth, users, tickets, roles, categories, dashboard, service_requests, reports, changes, change_approvals, notifications, knowledge, assets, sla_policies, chatbot, problems, groups, integrations, scheduled_reports, live_chat, projects
 from app.api.v1 import settings as settings_router
 
 # Include routers
@@ -71,6 +71,7 @@ app.include_router(settings_router.router, prefix="/api/v1", tags=["Settings"])
 app.include_router(integrations.router, prefix="/api/v1", tags=["Integrations"])
 app.include_router(scheduled_reports.router, prefix="/api/v1", tags=["Scheduled Reports"])
 app.include_router(live_chat.router, prefix="/api/v1", tags=["Live Chat"])
+app.include_router(projects.router, prefix="/api/v1", tags=["Projects"])
 
 # Mount static files directory for serving avatars and other static content
 static_dir = Path("static")

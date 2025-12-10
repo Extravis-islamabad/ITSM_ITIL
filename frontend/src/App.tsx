@@ -77,6 +77,10 @@ import IntegrationsPage from "@/pages/settings/IntegrationsPage";
 // Live Chat
 import ChatPage from "@/pages/chat/ChatPage";
 
+// Projects
+import ProjectsPage from "@/pages/projects/ProjectsPage";
+import ProjectDetailPage from "@/pages/projects/ProjectDetailPage";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -107,6 +111,10 @@ function App() {
 
               {/* Live Chat - All authenticated users */}
               <Route path="chat" element={<ChatPage />} />
+
+              {/* Projects - All authenticated users */}
+              <Route path="projects" element={<ProjectsPage />} />
+              <Route path="projects/:projectId/*" element={<ProjectDetailPage />} />
 
               {/* Incidents - All authenticated users */}
               <Route path="incidents" element={<IncidentsPage />} />

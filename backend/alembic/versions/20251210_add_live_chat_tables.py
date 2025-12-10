@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'live_chat_001'
-down_revision = None  # Set to None to make it independent
+down_revision = '20251209_first_response'
 branch_labels = None
 depends_on = None
 
