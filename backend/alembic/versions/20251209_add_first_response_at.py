@@ -1,7 +1,7 @@
 """Add first_response_at to tickets
 
 Revision ID: 20251209_first_response
-Revises: 20251207_add_ticket_assets
+Revises: ticket_assets_001
 Create Date: 2025-12-09
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '20251209_first_response'
-down_revision = '20251207_add_ticket_assets'
+down_revision = 'ticket_assets_001'  # Fixed: was '20251207_add_ticket_assets' but actual revision is 'ticket_assets_001'
 branch_labels = None
 depends_on = None
 
