@@ -20,7 +20,9 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     
     # Profile
-    avatar_url = Column(String(500), nullable=True)
+    avatar_url = Column(String(500), nullable=True)  # Legacy - for backwards compatibility
+    avatar_data = Column(Text, nullable=True)  # Base64 encoded avatar image
+    avatar_mime_type = Column(String(50), nullable=True)  # MIME type of avatar (e.g., image/jpeg)
     timezone = Column(String(50), default="UTC")
     language = Column(String(10), default="en")
     

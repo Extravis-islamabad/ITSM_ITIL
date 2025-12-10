@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -8,9 +8,7 @@ from app.schemas.auth import LoginRequest, LoginResponse, RefreshTokenRequest, T
 from app.services.auth_service import AuthService
 from app.models.user import User
 from datetime import datetime
-import uuid
-import os
-from pathlib import Path
+import base64
 
 router = APIRouter()
 
@@ -91,8 +89,14 @@ async def logout(
 
 
 # Avatar upload configuration
-AVATAR_DIR = Path("static/avatars")
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+MIME_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp"
+}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 
@@ -102,10 +106,11 @@ async def upload_avatar(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Upload profile picture for current user"""
+    """Upload profile picture for current user - stored as base64 in database"""
 
     # Validate file extension
-    file_ext = Path(file.filename).suffix.lower() if file.filename else ""
+    filename = file.filename or ""
+    file_ext = "." + filename.split(".")[-1].lower() if "." in filename else ""
     if file_ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -122,45 +127,20 @@ async def upload_avatar(
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024 * 1024)}MB"
         )
 
-    # Create avatar directory if it doesn't exist
-    AVATAR_DIR.mkdir(parents=True, exist_ok=True)
+    # Convert to base64
+    base64_data = base64.b64encode(content).decode('utf-8')
+    mime_type = MIME_TYPES.get(file_ext, "image/jpeg")
 
-    # Delete old avatar if exists
-    if current_user.avatar_url:
-        old_filename = current_user.avatar_url.split("/")[-1]
-        old_path = AVATAR_DIR / old_filename
-        if old_path.exists():
-            try:
-                os.remove(old_path)
-            except Exception:
-                pass  # Ignore deletion errors
-
-    # Generate unique filename
-    unique_filename = f"{current_user.id}_{uuid.uuid4().hex[:8]}{file_ext}"
-    file_path = AVATAR_DIR / unique_filename
-
-    # Save file
-    try:
-        with open(file_path, "wb") as f:
-            f.write(content)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save file: {str(e)}"
-        )
-
-    # Update user's avatar_url
-    avatar_url = f"/static/avatars/{unique_filename}"
-    current_user.avatar_url = avatar_url
+    # Update user's avatar data in database
+    current_user.avatar_data = base64_data
+    current_user.avatar_mime_type = mime_type
+    current_user.avatar_url = f"/api/v1/auth/avatar/{current_user.id}"  # URL to fetch avatar
     current_user.updated_at = datetime.utcnow()
 
     try:
         db.commit()
         db.refresh(current_user)
     except Exception as e:
-        # Clean up file if database update fails
-        if file_path.exists():
-            os.remove(file_path)
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -169,8 +149,28 @@ async def upload_avatar(
 
     return {
         "message": "Avatar uploaded successfully",
-        "avatar_url": avatar_url
+        "avatar_url": current_user.avatar_url
     }
+
+
+@router.get("/avatar/{user_id}")
+async def get_avatar(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get user avatar image from database"""
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user or not user.avatar_data:
+        raise HTTPException(status_code=404, detail="Avatar not found")
+
+    # Decode base64 and return as image
+    image_data = base64.b64decode(user.avatar_data)
+    return Response(
+        content=image_data,
+        media_type=user.avatar_mime_type or "image/jpeg",
+        headers={"Cache-Control": "public, max-age=3600"}  # Cache for 1 hour
+    )
 
 
 @router.delete("/me/avatar")
@@ -180,22 +180,15 @@ async def delete_avatar(
 ):
     """Delete profile picture for current user"""
 
-    if not current_user.avatar_url:
+    if not current_user.avatar_data and not current_user.avatar_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No avatar to delete"
         )
 
-    # Delete the file
-    filename = current_user.avatar_url.split("/")[-1]
-    file_path = AVATAR_DIR / filename
-    if file_path.exists():
-        try:
-            os.remove(file_path)
-        except Exception:
-            pass  # Ignore deletion errors
-
-    # Update user
+    # Clear avatar data
+    current_user.avatar_data = None
+    current_user.avatar_mime_type = None
     current_user.avatar_url = None
     current_user.updated_at = datetime.utcnow()
 
