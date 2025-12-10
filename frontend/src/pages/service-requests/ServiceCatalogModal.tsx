@@ -29,7 +29,7 @@ export default function ServiceCatalogModal({ open, onClose, onSuccess }: Servic
     asset_ids: [] as number[],
   });
 
-  const { data: templates } = useQuery({
+  const { data: templates, isLoading: templatesLoading } = useQuery({
     queryKey: ['service-request-templates'],
     queryFn: async () => {
       const res = await axiosInstance.get('/service-requests/templates');
@@ -152,6 +152,19 @@ export default function ServiceCatalogModal({ open, onClose, onSuccess }: Servic
 
         <div className="p-6">
           {!selectedTemplate ? (
+            templatesLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-500">Loading service templates...</p>
+              </div>
+            ) : templates?.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📋</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Service Templates Available</h3>
+                <p className="text-gray-500 mb-6">Service request templates have not been configured yet.</p>
+                <p className="text-sm text-gray-400">Please contact your administrator to set up service templates.</p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {templates?.map((template: any) => (
                 <Card
@@ -181,6 +194,7 @@ export default function ServiceCatalogModal({ open, onClose, onSuccess }: Servic
                 </Card>
               ))}
             </div>
+            )
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
