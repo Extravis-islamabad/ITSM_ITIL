@@ -57,6 +57,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Build both images in parallel for faster deployment
       - name: Build and push Backend image
         uses: docker/build-push-action@v5
         with:
@@ -65,8 +66,9 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND_REPOSITORY }}:${{ steps.meta.outputs.version }}
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND_REPOSITORY }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          platforms: linux/amd64
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
@@ -76,8 +78,9 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_FRONTEND_REPOSITORY }}:${{ steps.meta.outputs.version }}
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_FRONTEND_REPOSITORY }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+          platforms: linux/amd64
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
 
@@ -102,83 +105,81 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Update Backend ECS service
+      - name: Update ECS services (parallel)
         run: |
+          # Update both services in parallel
           aws ecs update-service \
             --cluster ${{ env.ECS_CLUSTER }} \
             --service ${{ env.ECS_SERVICE_BACKEND }} \
-            --force-new-deployment
+            --force-new-deployment &
 
-      - name: Update Frontend ECS service
-        run: |
           aws ecs update-service \
             --cluster ${{ env.ECS_CLUSTER }} \
             --service ${{ env.ECS_SERVICE_FRONTEND }} \
-            --force-new-deployment
+            --force-new-deployment &
 
-      - name: Wait for Backend deployment
+          # Wait for both update commands to complete
+          wait
+          echo "Both services updated, waiting for stabilization..."
+
+      - name: Wait for services to stabilize (parallel)
         run: |
-          echo "Waiting for backend service to stabilize..."
-          # Poll for service stability with custom timeout
-          for i in {1..30}; do
-            STATUS=$(aws ecs describe-services \
+          wait_for_service() {
+            local SERVICE_NAME=$1
+            local MAX_ATTEMPTS=20
+
+            echo "Waiting for $SERVICE_NAME to stabilize..."
+            for i in $(seq 1 $MAX_ATTEMPTS); do
+              STATUS=$(aws ecs describe-services \
+                --cluster ${{ env.ECS_CLUSTER }} \
+                --services $SERVICE_NAME \
+                --query 'services[0].{running:runningCount,desired:desiredCount,pending:pendingCount,deployments:length(deployments)}' \
+                --output json)
+
+              RUNNING=$(echo $STATUS | jq -r '.running')
+              DESIRED=$(echo $STATUS | jq -r '.desired')
+              PENDING=$(echo $STATUS | jq -r '.pending // 0')
+              DEPLOYMENTS=$(echo $STATUS | jq -r '.deployments')
+
+              echo "[$SERVICE_NAME] Attempt $i/$MAX_ATTEMPTS: Running=$RUNNING, Desired=$DESIRED, Pending=$PENDING, Deployments=$DEPLOYMENTS"
+
+              if [ "$RUNNING" == "$DESIRED" ] && [ "$PENDING" == "0" ] && [ "$DEPLOYMENTS" == "1" ]; then
+                echo "[$SERVICE_NAME] Service is stable!"
+                return 0
+              fi
+
+              sleep 15
+            done
+
+            echo "[$SERVICE_NAME] Did not stabilize in time"
+            aws ecs describe-services \
               --cluster ${{ env.ECS_CLUSTER }} \
-              --services ${{ env.ECS_SERVICE_BACKEND }} \
-              --query 'services[0].{running:runningCount,desired:desiredCount,pending:pendingCount}' \
-              --output json)
+              --services $SERVICE_NAME \
+              --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,events:events[0:3]}'
+            return 1
+          }
 
-            RUNNING=$(echo $STATUS | jq -r '.running')
-            DESIRED=$(echo $STATUS | jq -r '.desired')
-            PENDING=$(echo $STATUS | jq -r '.pending // 0')
+          # Wait for both services in parallel
+          wait_for_service "${{ env.ECS_SERVICE_BACKEND }}" &
+          BACKEND_PID=$!
 
-            echo "Attempt $i/30: Running=$RUNNING, Desired=$DESIRED, Pending=$PENDING"
+          wait_for_service "${{ env.ECS_SERVICE_FRONTEND }}" &
+          FRONTEND_PID=$!
 
-            if [ "$RUNNING" == "$DESIRED" ] && [ "$PENDING" == "0" ]; then
-              echo "Backend service is stable!"
-              exit 0
-            fi
+          # Wait for both and capture exit codes
+          wait $BACKEND_PID
+          BACKEND_EXIT=$?
 
-            sleep 20
-          done
+          wait $FRONTEND_PID
+          FRONTEND_EXIT=$?
 
-          echo "Backend service did not stabilize in time. Final status:"
-          aws ecs describe-services \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE_BACKEND }} \
-            --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,events:events[0:5]}'
-          exit 1
+          # Check results
+          if [ $BACKEND_EXIT -ne 0 ] || [ $FRONTEND_EXIT -ne 0 ]; then
+            echo "One or more services failed to stabilize"
+            exit 1
+          fi
 
-      - name: Wait for Frontend deployment
-        run: |
-          echo "Waiting for frontend service to stabilize..."
-          # Poll for service stability with custom timeout
-          for i in {1..30}; do
-            STATUS=$(aws ecs describe-services \
-              --cluster ${{ env.ECS_CLUSTER }} \
-              --services ${{ env.ECS_SERVICE_FRONTEND }} \
-              --query 'services[0].{running:runningCount,desired:desiredCount,pending:pendingCount}' \
-              --output json)
-
-            RUNNING=$(echo $STATUS | jq -r '.running')
-            DESIRED=$(echo $STATUS | jq -r '.desired')
-            PENDING=$(echo $STATUS | jq -r '.pending // 0')
-
-            echo "Attempt $i/30: Running=$RUNNING, Desired=$DESIRED, Pending=$PENDING"
-
-            if [ "$RUNNING" == "$DESIRED" ] && [ "$PENDING" == "0" ]; then
-              echo "Frontend service is stable!"
-              exit 0
-            fi
-
-            sleep 20
-          done
-
-          echo "Frontend service did not stabilize in time. Final status:"
-          aws ecs describe-services \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE_FRONTEND }} \
-            --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,events:events[0:5]}'
-          exit 1
+          echo "All services are stable!"
 
   # Post-deployment notification (optional)
   notify:
