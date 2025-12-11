@@ -1,1934 +1,2327 @@
-# ITSM Platform - QA Testing Guide
+# ITSM Platform - Complete QA Testing Guide
 
-## Document Information
-| Field | Value |
-|-------|-------|
-| Version | 1.0 |
-| Last Updated | December 2024 |
-| Application URL | http://itsm-alb-711993406.eu-north-1.elb.amazonaws.com |
-| API Base URL | /api/v1 |
+## For QA Testers Who Are New to This Application
+
+**Application URL:** http://itsm-alb-711993406.eu-north-1.elb.amazonaws.com
 
 ---
 
-## Table of Contents
+# PART 1: UNDERSTANDING THE APPLICATION
 
-1. [Test Environment Setup](#1-test-environment-setup)
-2. [Test Accounts](#2-test-accounts)
-3. [Module Test Cases](#3-module-test-cases)
-   - [3.1 Authentication](#31-authentication)
-   - [3.2 Dashboard](#32-dashboard)
-   - [3.3 Incidents](#33-incidents)
-   - [3.4 Service Requests](#34-service-requests)
-   - [3.5 Problems](#35-problems)
-   - [3.6 Changes](#36-changes)
-   - [3.7 Assets](#37-assets)
-   - [3.8 Knowledge Base](#38-knowledge-base)
-   - [3.9 Projects](#39-projects)
-   - [3.10 Live Chat](#310-live-chat)
-   - [3.11 Reports](#311-reports)
-   - [3.12 Settings & Administration](#312-settings--administration)
-   - [3.13 User Management](#313-user-management)
-   - [3.14 Notifications](#314-notifications)
-   - [3.15 AI Chatbot](#315-ai-chatbot)
-4. [Integration Tests](#4-integration-tests)
-5. [Performance Tests](#5-performance-tests)
-6. [Security Tests](#6-security-tests)
-7. [UI/UX Tests](#7-uiux-tests)
-8. [Mobile Responsiveness](#8-mobile-responsiveness)
-9. [Bug Report Template](#9-bug-report-template)
-10. [Test Execution Checklist](#10-test-execution-checklist)
+## What is This Application?
+
+This is an **IT Service Management (ITSM)** platform. Think of it as a help desk system where:
+- **End Users** report problems (like "my laptop won't turn on")
+- **IT Agents** fix those problems
+- **Managers** oversee the team and approve changes
+- **Admins** configure the entire system
+
+The application follows ITIL (IT Infrastructure Library) best practices with modules for:
+- **Incidents** - Something is broken, fix it fast!
+- **Service Requests** - User wants something (new laptop, software, access)
+- **Problems** - Finding root cause of recurring incidents
+- **Changes** - Planned modifications to IT systems
+- **Assets** - Track all IT equipment (laptops, servers, etc.)
+- **Projects** - Manage IT projects with Kanban boards
+- **Knowledge Base** - Documentation and how-to articles
 
 ---
 
-## 1. Test Environment Setup
+# PART 2: USER ROLES EXPLAINED
 
-### Browser Requirements
-- Chrome (latest) - Primary
-- Firefox (latest) - Secondary
-- Edge (latest) - Secondary
-- Safari (latest) - Mac only
+## Role Hierarchy (Top to Bottom)
 
-### Screen Resolutions to Test
-| Device Type | Resolution |
-|-------------|------------|
-| Desktop Large | 1920x1080 |
-| Desktop Medium | 1366x768 |
-| Tablet Landscape | 1024x768 |
-| Tablet Portrait | 768x1024 |
-| Mobile Large | 414x896 |
-| Mobile Small | 375x667 |
-
-### Pre-requisites
-- [ ] Clear browser cache before testing
-- [ ] Disable browser extensions (especially ad blockers)
-- [ ] Enable browser console for error monitoring
-- [ ] Have screenshot tool ready
-- [ ] Access to test email inbox for notification testing
+```
+SUPER ADMIN (God mode - can do everything)
+     ↓
+  ADMIN (System configuration)
+     ↓
+  MANAGER (Team oversight, approvals)
+     ↓
+  AGENT (Handle tickets, resolve issues)
+     ↓
+  USER (Create tickets, view own stuff)
+```
 
 ---
 
-## 2. Test Accounts
+## 2.1 SUPER ADMIN Role
 
-### Role-Based Test Accounts
+### How to Login as Super Admin
+1. Go to the application URL
+2. Enter email: `admin@yourcompany.com` (or whatever admin account exists)
+3. Enter password
+4. Click "Sign In"
 
-| Role | Email | Password | Permissions |
-|------|-------|----------|-------------|
-| Super Admin | admin@test.com | TestAdmin123! | Full access to all modules |
-| Manager | manager@test.com | TestManager123! | Manage team, approve changes |
-| Agent | agent@test.com | TestAgent123! | Handle tickets, view reports |
-| End User | user@test.com | TestUser123! | Create tickets, view own items |
+### What Super Admin Sees After Login
 
-### Create Test Accounts (if not exists)
-1. Login as Super Admin
-2. Go to Settings → Users
-3. Create users with above credentials
-4. Assign appropriate roles
+**Left Sidebar Navigation:**
+```
+📊 Dashboard
+📋 Incidents
+🎫 Service Requests
+🔍 Problems
+🔄 Changes
+💻 Assets
+📚 Knowledge Base
+📁 Projects
+💬 Chat
+📈 Reports
+⚙️ Settings
+   ├── General
+   ├── Categories
+   ├── SLA Policies
+   ├── Service Templates
+   ├── Groups
+   ├── Users
+   ├── Roles
+   └── Integrations
+```
 
----
+**Top Header:**
+- Company logo (left)
+- Search bar (center)
+- Notification bell icon (right)
+- User avatar with dropdown (right)
 
-## 3. Module Test Cases
-
-### 3.1 Authentication
-
-#### TC-AUTH-001: User Login - Valid Credentials
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User account exists and is active |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to login page | Login form displayed |
-| 2 | Enter valid email | Email accepted |
-| 3 | Enter valid password | Password masked |
-| 4 | Click "Sign In" button | User redirected to dashboard |
-| 5 | Check navigation menu | Menu items match user role |
-
----
-
-#### TC-AUTH-002: User Login - Invalid Credentials
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | None |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to login page | Login form displayed |
-| 2 | Enter invalid email | Email accepted |
-| 3 | Enter wrong password | Password masked |
-| 4 | Click "Sign In" button | Error message: "Invalid credentials" |
-| 5 | Verify user stays on login page | Login form still visible |
-
----
-
-#### TC-AUTH-003: User Login - Empty Fields
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | None |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to login page | Login form displayed |
-| 2 | Leave email empty | - |
-| 3 | Leave password empty | - |
-| 4 | Click "Sign In" button | Validation error on both fields |
+### What Super Admin Can Do
+| Module | Permissions |
+|--------|-------------|
+| Incidents | Create, View All, Edit All, Delete, Assign to anyone |
+| Service Requests | Create, View All, Edit All, Approve/Reject |
+| Problems | Create, View All, Edit All, Delete |
+| Changes | Create, View All, Edit All, Approve/Reject, Delete |
+| Assets | Create, View All, Edit All, Delete, Manage Types |
+| Knowledge Base | Create, View All, Edit All, Publish, Delete |
+| Projects | Create, View All, Manage All, Delete |
+| Reports | View All Reports, Export, Schedule |
+| Settings | FULL ACCESS to all settings |
+| Users | Create, Edit, Deactivate, Change Roles |
 
 ---
 
-#### TC-AUTH-004: User Logout
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User is logged in |
+## 2.2 MANAGER Role
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click user avatar/menu | Dropdown menu appears |
-| 2 | Click "Logout" | User redirected to login page |
-| 3 | Try to access dashboard URL directly | Redirected to login page |
-| 4 | Press browser back button | Should not access protected pages |
+### How to Login as Manager
+1. Go to application URL
+2. Enter manager credentials
+3. Click "Sign In"
 
----
+### What Manager Sees After Login
 
-#### TC-AUTH-005: Password Reset Request
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Valid user email exists |
+**Left Sidebar Navigation:**
+```
+📊 Dashboard
+📋 Incidents
+🎫 Service Requests
+🔍 Problems
+🔄 Changes
+💻 Assets
+📚 Knowledge Base
+📁 Projects
+💬 Chat
+📈 Reports
+⚙️ Settings (LIMITED)
+   ├── Categories
+   ├── SLA Policies
+   ├── Service Templates
+   └── Groups
+```
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "Forgot Password" link | Password reset form displayed |
-| 2 | Enter registered email | Email accepted |
-| 3 | Click "Send Reset Link" | Success message displayed |
-| 4 | Check email inbox | Reset email received |
-| 5 | Click reset link in email | Password reset page opens |
-| 6 | Enter new password | Password accepted |
-| 7 | Confirm new password | Passwords match |
-| 8 | Submit | Success message, redirected to login |
-| 9 | Login with new password | Login successful |
+**Note:** Manager does NOT see:
+- Users management
+- Roles management
+- System integrations
 
----
+### What Manager Can Do
+| Module | Permissions |
+|--------|-------------|
+| Incidents | Create, View All, Edit All, Assign to team members |
+| Service Requests | Create, View All, Approve/Reject requests |
+| Problems | Create, View All, Edit All |
+| Changes | Create, View All, **APPROVE/REJECT** (Key responsibility!) |
+| Assets | Create, View All, Edit |
+| Knowledge Base | Create, Edit, Publish |
+| Projects | Create, Manage team projects |
+| Reports | View team reports |
+| Settings | Limited - Categories, SLA, Templates, Groups |
 
-#### TC-AUTH-006: Session Timeout
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | User is logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Login to application | Dashboard displayed |
-| 2 | Wait for session timeout (30 min) | - |
-| 3 | Try to perform any action | Redirected to login with message |
-
----
-
-#### TC-AUTH-007: Token Refresh
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User is logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Login and stay active | Session remains active |
-| 2 | Monitor network requests | Token refresh occurs automatically |
-| 3 | Continue using application | No interruption to user |
+### Manager's Key Responsibilities
+1. **Approve Changes** - When agents request system changes, manager must approve
+2. **Approve Service Requests** - Some requests need manager approval
+3. **Assign Tickets** - Distribute work among agents
+4. **Monitor SLA** - Ensure tickets are resolved on time
 
 ---
 
-### 3.2 Dashboard
+## 2.3 AGENT Role
 
-#### TC-DASH-001: Dashboard Load
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User is logged in |
+### How to Login as Agent
+1. Go to application URL
+2. Enter agent credentials
+3. Click "Sign In"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Dashboard | Dashboard page loads |
-| 2 | Verify stat cards | Open Incidents, Pending Changes, etc. displayed |
-| 3 | Verify charts load | Charts render with data |
-| 4 | Verify recent activity | Recent items list populated |
+### What Agent Sees After Login
 
----
+**Left Sidebar Navigation:**
+```
+📊 Dashboard
+📋 Incidents
+🎫 Service Requests
+🔍 Problems
+🔄 Changes
+💻 Assets
+📚 Knowledge Base
+📁 Projects
+💬 Chat
+📈 Reports (LIMITED)
+```
 
-#### TC-DASH-002: Dashboard Stats Accuracy
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Some tickets/changes exist in system |
+**Note:** Agent does NOT see:
+- Settings menu (no configuration access)
+- User management
+- Role management
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Note "Open Incidents" count on dashboard | Count noted |
-| 2 | Navigate to Incidents page | - |
-| 3 | Filter by "Open" status | - |
-| 4 | Compare counts | Dashboard count matches filtered count |
-| 5 | Repeat for other stats | All counts accurate |
+### What Agent Can Do
+| Module | Permissions |
+|--------|-------------|
+| Incidents | Create, View Assigned/All, Edit Assigned, Add Comments |
+| Service Requests | View All, Fulfill requests assigned to them |
+| Problems | Create, View All, Add RCA/Workarounds |
+| Changes | Create (submit for approval), View All |
+| Assets | View All, Edit assigned assets |
+| Knowledge Base | Create drafts, View published |
+| Projects | Work on assigned tasks |
+| Reports | View own performance |
 
----
-
-#### TC-DASH-003: Dashboard Quick Actions
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | User is logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "Create Incident" quick action | Create incident modal opens |
-| 2 | Close modal | - |
-| 3 | Click "View Reports" quick action | Reports page opens |
-
----
-
-#### TC-DASH-004: Dashboard Role-Based Content
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Multiple role accounts |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Login as Admin | Full dashboard with all stats |
-| 2 | Logout and login as Agent | Agent-specific dashboard |
-| 3 | Logout and login as End User | Limited dashboard (own tickets only) |
+### Agent's Key Responsibilities
+1. **Resolve Incidents** - Fix user problems
+2. **Fulfill Service Requests** - Process user requests
+3. **Document Solutions** - Add to knowledge base
+4. **Update Ticket Status** - Keep users informed
 
 ---
 
-### 3.3 Incidents
+## 2.4 END USER Role
 
-#### TC-INC-001: Create Incident - All Fields
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User logged in with create permission |
+### How to Login as End User
+1. Go to application URL
+2. Enter user credentials
+3. Click "Sign In"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Incidents | Incidents list page |
-| 2 | Click "Create Incident" | Create modal opens |
-| 3 | Enter Title: "Test Incident 001" | Title accepted |
-| 4 | Enter Description: "Detailed description..." | Description accepted |
-| 5 | Select Category | Category selected |
-| 6 | Select Priority: "High" | Priority set |
-| 7 | Select Assignee | Assignee selected |
-| 8 | Click "Create" | Incident created, toast success |
-| 9 | Verify in list | New incident appears at top |
-| 10 | Click to view details | All entered data displayed correctly |
+### What End User Sees After Login
+
+**Left Sidebar Navigation:**
+```
+📊 Dashboard (Personal)
+📋 My Incidents
+🎫 My Service Requests
+📚 Knowledge Base (Read Only)
+💬 Chat
+```
+
+**Note:** End User does NOT see:
+- Problems module
+- Changes module
+- Assets module
+- Projects module
+- Reports module
+- Settings
+
+### What End User Can Do
+| Module | Permissions |
+|--------|-------------|
+| Incidents | Create own, View own only, Add comments to own |
+| Service Requests | Create own, View own only |
+| Knowledge Base | Search and read articles only |
+| Chat | Chat with support agents |
+
+### End User's Typical Actions
+1. **Report Problems** - "My email isn't working"
+2. **Request Services** - "I need a new laptop"
+3. **Check Status** - "What's happening with my ticket?"
+4. **Find Answers** - Search knowledge base for self-help
 
 ---
 
-#### TC-INC-002: Create Incident - Required Fields Only
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User logged in |
+# PART 3: MODULE-BY-MODULE WALKTHROUGH
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "Create Incident" | Create modal opens |
-| 2 | Enter only Title | - |
-| 3 | Leave other fields empty/default | - |
-| 4 | Click "Create" | Incident created successfully |
+## 3.1 AUTHENTICATION MODULE
+
+### Login Page Layout
+```
+┌─────────────────────────────────────┐
+│                                     │
+│         [Company Logo]              │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │ Email                   │     │
+│     └─────────────────────────┘     │
+│     ┌─────────────────────────┐     │
+│     │ Password            👁  │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     [        Sign In        ]       │
+│                                     │
+│     Forgot Password?                │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+### Test Cases for Authentication
+
+#### TC-AUTH-001: Successful Login
+**Role:** Any
+**Steps:**
+1. Open browser and go to application URL
+2. You should see the login page with email and password fields
+3. Enter a valid email (e.g., `admin@test.com`)
+4. Enter the correct password
+5. Click "Sign In" button
+
+**Expected:**
+- Page redirects to Dashboard
+- Your name appears in top-right corner
+- Sidebar shows menu items based on your role
+
+**How to Verify:**
+- Check the URL changed to `/dashboard`
+- Check your avatar/name in header
+- Check sidebar has correct menu items for your role
 
 ---
 
-#### TC-INC-003: Create Incident - Validation
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User logged in |
+#### TC-AUTH-002: Failed Login - Wrong Password
+**Role:** Any
+**Steps:**
+1. Go to login page
+2. Enter valid email
+3. Enter WRONG password (intentionally)
+4. Click "Sign In"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "Create Incident" | Create modal opens |
-| 2 | Leave Title empty | - |
-| 3 | Click "Create" | Validation error: "Title is required" |
-| 4 | Enter very long title (500+ chars) | Validation or truncation |
+**Expected:**
+- Red error message appears: "Invalid credentials" or similar
+- You stay on login page
+- Password field may clear
+
+**How to Verify:**
+- Error message is visible and readable
+- URL is still `/login`
+- Cannot access any other pages
+
+---
+
+#### TC-AUTH-003: Failed Login - Empty Fields
+**Role:** Any
+**Steps:**
+1. Go to login page
+2. Leave email empty
+3. Leave password empty
+4. Click "Sign In"
+
+**Expected:**
+- Validation errors appear on both fields
+- Message like "Email is required" and "Password is required"
+- Form does not submit
+
+---
+
+#### TC-AUTH-004: Logout
+**Role:** Any logged in user
+**Steps:**
+1. Login successfully
+2. Click on your avatar/name in top-right corner
+3. Click "Logout" from dropdown menu
+
+**Expected:**
+- Redirected to login page
+- If you try to go back (browser back button), you should NOT see dashboard
+- If you manually type `/dashboard` in URL, you should be redirected to login
+
+---
+
+#### TC-AUTH-005: Password Reset Flow
+**Role:** Any
+**Steps:**
+1. Go to login page
+2. Click "Forgot Password?" link
+3. Enter your registered email
+4. Click "Send Reset Link"
+5. Check your email inbox
+6. Click the reset link in email
+7. Enter new password
+8. Confirm new password
+9. Submit
+10. Try logging in with new password
+
+**Expected:**
+- Reset email arrives within 2-3 minutes
+- Reset link opens password reset form
+- New password works for login
+
+---
+
+#### TC-AUTH-006: Session Expiry
+**Role:** Any
+**Steps:**
+1. Login to application
+2. Note the time
+3. Leave browser idle for 30+ minutes (or whatever session timeout is configured)
+4. Try to click on any link or perform any action
+
+**Expected:**
+- Redirected to login page
+- Message like "Session expired, please login again"
+
+---
+
+## 3.2 DASHBOARD MODULE
+
+### Dashboard Layout (Admin/Manager View)
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Dashboard                                      🔔  👤 Admin  │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
+│  │   12     │  │    5     │  │    3     │  │    8     │     │
+│  │  Open    │  │ Pending  │  │ Critical │  │  Due     │     │
+│  │ Tickets  │  │ Changes  │  │ Incidents│  │  Today   │     │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
+│                                                              │
+│  ┌─────────────────────────────┐  ┌─────────────────────┐   │
+│  │                             │  │                     │   │
+│  │   Tickets by Status        │  │  Recent Activity    │   │
+│  │   [PIE CHART]              │  │  • Ticket #123...   │   │
+│  │                             │  │  • Change #45...    │   │
+│  │                             │  │  • User John...     │   │
+│  └─────────────────────────────┘  └─────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                                                     │    │
+│  │   Tickets Over Time [LINE CHART]                    │    │
+│  │                                                     │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Dashboard Layout (End User View)
+```
+┌──────────────────────────────────────────────────────────────┐
+│  My Dashboard                                   🔔  👤 User   │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────┐  ┌──────────┐                                 │
+│  │    2     │  │    1     │                                 │
+│  │   My     │  │   My     │                                 │
+│  │ Tickets  │  │ Requests │                                 │
+│  └──────────┘  └──────────┘                                 │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  My Recent Tickets                                  │    │
+│  │  • INC-001: Email not working (Open)               │    │
+│  │  • INC-002: VPN issue (Resolved)                   │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Test Cases for Dashboard
+
+#### TC-DASH-001: Dashboard Loads Correctly
+**Role:** Login as Admin
+**Steps:**
+1. Login as Admin
+2. You should automatically land on Dashboard
+
+**Expected:**
+- Stat cards show numbers (Open Tickets, Pending Changes, etc.)
+- Charts render properly (not broken/empty)
+- Recent activity list shows items
+
+**How to Verify:**
+- No loading spinners stuck forever
+- No error messages
+- Numbers in cards are not "NaN" or "undefined"
+
+---
+
+#### TC-DASH-002: Dashboard Stats Are Accurate
+**Role:** Admin
+**Steps:**
+1. Note the "Open Incidents" count on dashboard (let's say it shows "12")
+2. Click on "Incidents" in sidebar
+3. Filter by Status = "Open"
+4. Count the tickets shown
+
+**Expected:**
+- The count from dashboard matches the filtered count in Incidents page
+- Do this for other stats too (Pending Changes, etc.)
+
+---
+
+#### TC-DASH-003: Role-Based Dashboard Content
+**Steps:**
+1. Login as Admin → Note what you see on dashboard
+2. Logout
+3. Login as Agent → Note what you see
+4. Logout
+5. Login as End User → Note what you see
+
+**Expected:**
+| Role | Dashboard Shows |
+|------|-----------------|
+| Admin | All stats, all charts, all activity |
+| Manager | Team stats, team charts, team activity |
+| Agent | Assigned tickets, personal performance |
+| End User | Only own tickets and requests |
+
+---
+
+## 3.3 INCIDENTS MODULE
+
+### What is an Incident?
+An **Incident** is an unplanned interruption or degradation of an IT service.
+- Examples: "My laptop crashed", "Email server is down", "Can't login to system"
+- Goal: Restore service as quickly as possible
+
+### Incidents List Page Layout
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Incidents                                    [Table] [Kanban]       │
+│                                               [+ Create Incident]    │
+├──────────────────────────────────────────────────────────────────────┤
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ 🔍 Search incidents...                                         │  │
+│  │                                                                │  │
+│  │ Status: [All ▼]  Priority: [All ▼]  Assignee: [All ▼]         │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ # ID     │ Title            │ Status │ Priority │ Assignee    │  │
+│  ├──────────┼──────────────────┼────────┼──────────┼─────────────┤  │
+│  │ INC-001  │ Email not work.. │ 🟡 Open│ 🔴 High  │ John Doe    │  │
+│  │ INC-002  │ VPN connection.. │ 🔵 New │ 🟡 Medium│ Unassigned  │  │
+│  │ INC-003  │ Printer error..  │ 🟢 Done│ 🟢 Low   │ Jane Smith  │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  Showing 1-20 of 45    [< Prev] [1] [2] [3] [Next >]                │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Incident Kanban View Layout
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Incidents (Kanban)                                    [Table] [Kanban]     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  NEW          OPEN         IN PROGRESS    PENDING      RESOLVED    CLOSED  │
+│  ┌─────┐      ┌─────┐      ┌─────┐       ┌─────┐      ┌─────┐     ┌─────┐ │
+│  │INC02│      │INC01│      │INC05│       │INC07│      │INC03│     │INC09│ │
+│  │Email│      │VPN  │      │Print│       │Wait │      │Fixed│     │Done │ │
+│  │     │      │     │      │     │       │     │      │     │     │     │ │
+│  └─────┘      └─────┘      └─────┘       └─────┘      └─────┘     └─────┘ │
+│  ┌─────┐      ┌─────┐                                                      │
+│  │INC04│      │INC06│                                                      │
+│  │Crash│      │Slow │                                                      │
+│  └─────┘      └─────┘                                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Incident Detail Page Layout
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  ← Back to Incidents                           [Edit] [Delete]       │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  INC-001: Email not working after Windows update                     │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                     │
+│                                                                      │
+│  Status: [Open ▼]     Priority: 🔴 High     Category: Email          │
+│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │ Description                                                  │    │
+│  │                                                             │    │
+│  │ After the latest Windows update, Outlook keeps crashing    │    │
+│  │ when I try to open it. I've tried restarting but it        │    │
+│  │ doesn't help.                                               │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                      │
+│  Assignee: John Doe            Reporter: Alice Smith                │
+│  Created: Dec 10, 2024         SLA Due: Dec 11, 2024 (2h left)     │
+│                                                                      │
+│  ═══════════════════════════════════════════════════════════════    │
+│  Activity / Comments                                                 │
+│  ═══════════════════════════════════════════════════════════════    │
+│                                                                      │
+│  👤 John Doe - 2 hours ago                                          │
+│  Looking into this issue. Will update shortly.                      │
+│                                                                      │
+│  👤 System - 3 hours ago                                            │
+│  Ticket assigned to John Doe                                        │
+│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │ Add a comment...                                            │    │
+│  │                                                 [Send]      │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Incident Status Flow
+```
+NEW → OPEN → IN_PROGRESS → PENDING → RESOLVED → CLOSED
+                              ↑          │
+                              └──────────┘
+                           (Can reopen if needed)
+```
+
+| Status | Meaning |
+|--------|---------|
+| NEW | Just created, not yet looked at |
+| OPEN | Someone is aware, will work on it |
+| IN_PROGRESS | Actively being worked on |
+| PENDING | Waiting for something (user response, parts, etc.) |
+| RESOLVED | Fix applied, waiting for user confirmation |
+| CLOSED | Completely done |
+
+### Test Cases for Incidents
+
+#### TC-INC-001: Create Incident as Admin
+**Role:** Admin
+**Steps:**
+1. Login as Admin
+2. Click "Incidents" in sidebar
+3. Click "+ Create Incident" button (top right)
+4. A modal/form appears
+5. Fill in:
+   - Title: "Test Incident - Printer not printing"
+   - Description: "The office printer on 2nd floor is showing error code E-45"
+   - Category: Select "Hardware" (or whatever exists)
+   - Priority: Select "High"
+   - Assignee: Select an agent (or leave unassigned)
+6. Click "Create" button
+
+**Expected:**
+- Modal closes
+- Success toast: "Incident created successfully"
+- New incident appears in list
+- Incident has ID like "INC-XXX"
+
+**How to Verify:**
+- Click on the new incident to open it
+- All fields you entered are saved correctly
+
+---
+
+#### TC-INC-002: Create Incident as End User
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Click "Incidents" in sidebar (shows as "My Incidents")
+3. Click "Create Incident" or "Report Issue"
+4. Fill in:
+   - Title: "My laptop is very slow"
+   - Description: "Since yesterday my laptop takes 5 minutes to boot"
+5. Click "Create"
+
+**Expected:**
+- Incident created
+- End user can see it in "My Incidents"
+- End user CANNOT assign it to anyone (field not visible or disabled)
+
+**How to Verify:**
+- The incident shows YOUR name as reporter
+- Status is "NEW"
+- Assignee is empty or "Unassigned"
+
+---
+
+#### TC-INC-003: View Incident List with Filters
+**Role:** Admin or Agent
+**Steps:**
+1. Go to Incidents page
+2. You see list of all incidents
+3. Use Status dropdown, select "Open"
+4. Notice list filters to show only Open tickets
+5. Use Priority dropdown, select "Critical"
+6. Notice list now shows only Open + Critical tickets
+7. Clear all filters
+8. Type in search box: "email"
+9. Notice list shows incidents with "email" in title/description
+
+**Expected:**
+- Filters work correctly
+- Search finds matching incidents
+- Clearing filters shows all incidents
 
 ---
 
 #### TC-INC-004: View Incident Details
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Incident exists |
+**Role:** Any
+**Steps:**
+1. Go to Incidents list
+2. Click on any incident row
+3. Detail page opens
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Incidents | List displayed |
-| 2 | Click on an incident | Detail page opens |
-| 3 | Verify ticket number | Displayed correctly |
-| 4 | Verify title and description | Displayed correctly |
-| 5 | Verify status badge | Correct status shown |
-| 6 | Verify priority badge | Correct priority shown |
-| 7 | Verify assignee | Correct assignee or "Unassigned" |
-| 8 | Verify activity timeline | Shows creation and updates |
+**Expected:**
+- See ticket ID (INC-XXX)
+- See title, description
+- See status badge with color
+- See priority badge with color
+- See assignee name/avatar (or "Unassigned")
+- See reporter name
+- See created date
+- See activity/comments section
 
 ---
 
 #### TC-INC-005: Update Incident Status
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Incident exists, user has permission |
+**Role:** Agent or Admin
+**Steps:**
+1. Open an incident that is in "NEW" status
+2. Find the Status dropdown (usually at top of detail page)
+3. Click dropdown and select "IN_PROGRESS"
+4. (May ask for confirmation or save automatically)
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open incident detail | Detail page displayed |
-| 2 | Click status dropdown/button | Status options shown |
-| 3 | Select "In Progress" | Confirmation or immediate update |
-| 4 | Verify status change | Status badge updated |
-| 5 | Check activity timeline | Status change logged |
-| 6 | Verify assignee notification | Notification sent (if configured) |
+**Expected:**
+- Status changes to "IN_PROGRESS"
+- Activity log shows: "Status changed from NEW to IN_PROGRESS by [your name]"
+- Toast message: "Status updated"
 
 ---
 
-#### TC-INC-006: Assign Incident
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Incident exists, user has permission |
+#### TC-INC-006: Assign Incident to Agent
+**Role:** Admin or Manager
+**Steps:**
+1. Open an unassigned incident
+2. Find "Assignee" field
+3. Click to open user selector
+4. Select an agent (e.g., "John Doe")
+5. Save/confirm
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open incident detail | Detail page displayed |
-| 2 | Click "Assign" button | Assignment modal/dropdown |
-| 3 | Select an agent | Agent selected |
-| 4 | Confirm assignment | Assignment saved |
-| 5 | Verify assignee display | New assignee shown |
-| 6 | Check assignee received notification | Email/in-app notification |
+**Expected:**
+- Assignee shows "John Doe"
+- Activity log shows: "Assigned to John Doe by [your name]"
+- John Doe should receive notification (check notification bell)
 
 ---
 
 #### TC-INC-007: Add Comment to Incident
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Incident exists |
+**Role:** Any role with access to the incident
+**Steps:**
+1. Open any incident
+2. Scroll to comments section
+3. Type in comment box: "I am investigating this issue"
+4. Click "Send" or "Add Comment"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open incident detail | Detail page displayed |
-| 2 | Scroll to comments section | Comments visible |
-| 3 | Enter comment text | Text entered |
-| 4 | Click "Add Comment" | Comment saved |
-| 5 | Verify comment appears | Comment in list with timestamp |
-| 6 | Verify commenter name | Your name displayed |
+**Expected:**
+- Comment appears in activity feed
+- Shows your name and timestamp
+- Comment text is displayed correctly
 
 ---
 
-#### TC-INC-008: Filter Incidents
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Multiple incidents exist |
+#### TC-INC-008: Drag Ticket in Kanban View
+**Role:** Agent or Admin
+**Steps:**
+1. Go to Incidents page
+2. Click "Kanban" view toggle (top right, next to Table)
+3. Find a ticket card in "NEW" column
+4. Click and drag it to "IN_PROGRESS" column
+5. Release (drop) the card
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Incidents | All incidents shown |
-| 2 | Filter by Status: "Open" | Only open incidents shown |
-| 3 | Clear filter | All incidents shown |
-| 4 | Filter by Priority: "Critical" | Only critical shown |
-| 5 | Filter by Assignee | Only that assignee's tickets |
-| 6 | Combine multiple filters | Intersection of filters |
-
----
-
-#### TC-INC-009: Search Incidents
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Multiple incidents exist |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Enter search term in search box | - |
-| 2 | Press Enter or wait for debounce | Search executed |
-| 3 | Verify results match title/description | Relevant results shown |
-| 4 | Clear search | All incidents shown |
-| 5 | Search by ticket number | Exact ticket found |
+**Expected:**
+- Card moves to new column
+- Toast: "Status updated to IN_PROGRESS"
+- If you switch back to Table view, ticket status shows "IN_PROGRESS"
 
 ---
 
-#### TC-INC-010: Incidents Kanban View
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Multiple incidents in different statuses |
+#### TC-INC-009: Incident Cannot Be Edited by End User
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Go to My Incidents
+3. Click on your own incident
+4. Try to change status, priority, or assignee
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Incidents | Table view shown |
-| 2 | Click "Kanban" view toggle | Kanban board displayed |
-| 3 | Verify columns | NEW, OPEN, IN_PROGRESS, PENDING, RESOLVED, CLOSED |
-| 4 | Verify tickets in correct columns | Tickets grouped by status |
-| 5 | Drag ticket to another column | Status updates |
-| 6 | Verify ticket moved | Now in new column |
-| 7 | Check toast notification | "Status updated" message |
+**Expected:**
+- Status dropdown is disabled OR not visible
+- Priority cannot be changed
+- Assignee field is not visible
+- End user can ONLY add comments
 
 ---
 
-#### TC-INC-011: Incidents Pagination
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | More than 20 incidents exist |
+#### TC-INC-010: Resolve and Close Incident
+**Role:** Agent then Admin
+**Agent Steps:**
+1. Login as Agent
+2. Open an incident assigned to you
+3. Add comment: "Fixed by reinstalling the software"
+4. Change status to "RESOLVED"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Incidents (Table view) | First page shown |
-| 2 | Verify pagination info | "Showing 1-20 of X" |
-| 3 | Click "Next" | Page 2 loaded |
-| 4 | Verify different incidents | Not duplicates |
-| 5 | Click "Previous" | Back to page 1 |
+**Admin Steps:**
+1. Login as Admin (or same agent)
+2. Open the resolved incident
+3. Change status to "CLOSED"
 
----
-
-#### TC-INC-012: Edit Incident
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Incident exists, user has permission |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open incident detail | Detail page displayed |
-| 2 | Click "Edit" button | Edit page/modal opens |
-| 3 | Modify title | Title changed |
-| 4 | Modify description | Description changed |
-| 5 | Modify priority | Priority changed |
-| 6 | Save changes | Changes saved |
-| 7 | Verify updates displayed | New values shown |
-| 8 | Check activity timeline | Edit logged |
+**Expected:**
+- Incident flow: IN_PROGRESS → RESOLVED → CLOSED
+- Each status change is logged in activity
 
 ---
 
-#### TC-INC-013: Delete Incident
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Incident exists, user is admin |
+## 3.4 SERVICE REQUESTS MODULE
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open incident detail | Detail page displayed |
-| 2 | Click "Delete" button | Confirmation dialog |
-| 3 | Confirm deletion | Incident deleted |
-| 4 | Verify redirect to list | Incident not in list |
+### What is a Service Request?
+A **Service Request** is a formal request from a user for something to be provided.
+- Examples: "I need a new laptop", "Please install Photoshop", "Need access to sales folder"
+- Unlike incidents (something broken), these are planned requests
 
----
+### Service Request Catalog View
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Service Catalog                               [+ New Request]       │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Select a service to request:                                        │
+│                                                                      │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐      │
+│  │       💻        │  │       📧        │  │       🔐        │      │
+│  │                 │  │                 │  │                 │      │
+│  │  New Hardware   │  │  Email Setup    │  │  Access Request │      │
+│  │                 │  │                 │  │                 │      │
+│  │  Request new    │  │  Setup email    │  │  Request access │      │
+│  │  laptop, phone  │  │  on device      │  │  to systems     │      │
+│  │                 │  │                 │  │                 │      │
+│  │  Est: 5 days    │  │  Est: 1 day     │  │  Est: 2 days    │      │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘      │
+│                                                                      │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐      │
+│  │       🖥️        │  │       📱        │  │       🔧        │      │
+│  │                 │  │                 │  │                 │      │
+│  │  Software       │  │  Mobile Device  │  │  Equipment      │      │
+│  │  Installation   │  │  Setup          │  │  Repair         │      │
+│  │                 │  │                 │  │                 │      │
+│  │  Est: 2 days    │  │  Est: 1 day     │  │  Est: 3 days    │      │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘      │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
 
-### 3.4 Service Requests
+### Test Cases for Service Requests
 
 #### TC-SR-001: View Service Catalog
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Service templates exist |
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Click "Service Requests" in sidebar
+3. Click "+ New Request" button
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Service Requests | Service Requests page |
-| 2 | Click "New Request" | Service catalog modal |
-| 3 | Verify templates displayed | Template cards with icons |
-| 4 | Verify template details | Name, description, estimated days |
+**Expected:**
+- Modal opens showing service catalog
+- Service types displayed as cards with icons
+- Each card shows name, description, estimated time
+
+**If catalog is empty:**
+- Should show message: "No Service Templates Available"
+- Admin needs to create templates first
 
 ---
 
 #### TC-SR-002: Create Service Request
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Service templates exist |
+**Role:** End User
+**Steps:**
+1. Open Service Catalog (above step)
+2. Click on "Software Installation" card
+3. Form appears with fields:
+   - What software do you need? (text)
+   - Business justification (text)
+4. Fill in the form
+5. Click "Submit Request"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "New Request" | Service catalog shown |
-| 2 | Select a template | Request form opens |
-| 3 | Fill required fields | Fields populated |
-| 4 | Submit request | Request created |
-| 5 | Verify in list | New request appears |
-
----
-
-#### TC-SR-003: Service Request - No Templates
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | No active templates exist |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click "New Request" | Modal opens |
-| 2 | Verify empty state | "No Service Templates Available" message |
-| 3 | Verify admin link | Link to create templates (for admins) |
+**Expected:**
+- Request created successfully
+- Request ID generated (SR-XXX)
+- Status: "PENDING" or "AWAITING_APPROVAL"
+- You can see it in your Service Requests list
 
 ---
 
-#### TC-SR-004: Service Request Approval Flow
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Request with approval requirement exists |
+#### TC-SR-003: Manager Approves Service Request
+**Role:** Manager
+**Steps:**
+1. Login as Manager
+2. Go to Service Requests
+3. Find a request with status "PENDING_APPROVAL"
+4. Click to open details
+5. Click "Approve" button
+6. (Optional) Add approval note
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create request requiring approval | Request created with "Pending Approval" |
-| 2 | Login as approver | - |
-| 3 | Navigate to request | Approve/Reject buttons visible |
-| 4 | Click "Approve" | Request approved |
-| 5 | Verify status change | Status updated |
-| 6 | Check requester notification | Requester notified |
+**Expected:**
+- Status changes to "APPROVED"
+- Requester receives notification
+- Request moves forward for fulfillment
 
 ---
 
-### 3.5 Problems
+#### TC-SR-004: Manager Rejects Service Request
+**Role:** Manager
+**Steps:**
+1. Login as Manager
+2. Find a pending request
+3. Click "Reject" button
+4. Enter rejection reason (required)
+5. Confirm
+
+**Expected:**
+- Status changes to "REJECTED"
+- Requester receives notification with reason
+- Request is closed
+
+---
+
+## 3.5 PROBLEMS MODULE
+
+### What is a Problem?
+A **Problem** is the underlying cause of one or more incidents.
+- Example: 5 users report "email not working" (5 incidents) → 1 problem: "Mail server disk full"
+- Goal: Find root cause and prevent future incidents
+
+### Problem Record Flow
+```
+NEW → UNDER_INVESTIGATION → KNOWN_ERROR → RESOLVED → CLOSED
+
+During investigation:
+- Link related incidents
+- Add Root Cause Analysis (RCA)
+- Add Workaround (temporary fix)
+- Add Permanent Solution
+```
+
+### Test Cases for Problems
 
 #### TC-PROB-001: Create Problem Record
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User has problem management access |
+**Role:** Agent or Admin
+**Steps:**
+1. Login as Agent
+2. Click "Problems" in sidebar
+3. Click "Create Problem"
+4. Fill in:
+   - Title: "Recurring network disconnections"
+   - Description: "Multiple users reporting network drops at 2pm daily"
+   - Priority: High
+   - Category: Network
+5. Click "Create"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Problems | Problems list |
-| 2 | Click "Create Problem" | Create modal |
-| 3 | Enter Title | Title accepted |
-| 4 | Enter Description | Description accepted |
-| 5 | Select Priority | Priority set |
-| 6 | Select Category | Category set |
-| 7 | Submit | Problem created |
+**Expected:**
+- Problem created with ID (PROB-XXX)
+- Status: "NEW"
+- Appears in Problems list
 
 ---
 
-#### TC-PROB-002: Link Incident to Problem
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Problem and incidents exist |
+#### TC-PROB-002: Link Incidents to Problem
+**Role:** Agent or Admin
+**Steps:**
+1. Open a Problem record
+2. Find "Related Incidents" section
+3. Click "Link Incident"
+4. Search/select incidents to link
+5. Confirm
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open problem detail | Detail page |
-| 2 | Click "Link Incident" | Incident selector |
-| 3 | Select incident(s) | Incidents selected |
-| 4 | Confirm linking | Incidents linked |
-| 5 | Verify linked incidents list | Incidents shown under problem |
+**Expected:**
+- Incidents appear in Related Incidents list
+- If you open those incidents, they show linked to this problem
 
 ---
 
 #### TC-PROB-003: Add Root Cause Analysis
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Problem exists |
+**Role:** Agent or Admin
+**Steps:**
+1. Open a Problem record
+2. Find "Root Cause Analysis" section
+3. Click "Add RCA"
+4. Enter: "Network switch in server room overheating due to failed AC unit"
+5. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open problem detail | Detail page |
-| 2 | Click "Add RCA" | RCA form |
-| 3 | Enter root cause description | Text entered |
-| 4 | Save RCA | RCA saved |
-| 5 | Verify RCA displayed | RCA section shows content |
+**Expected:**
+- RCA appears in problem record
+- Problem status can change to "KNOWN_ERROR"
 
 ---
 
 #### TC-PROB-004: Add Workaround
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Problem exists |
+**Role:** Agent
+**Steps:**
+1. Open a Problem (that has RCA)
+2. Click "Add Workaround"
+3. Enter: "Restart the network switch every day at 1:30pm until AC is fixed"
+4. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open problem detail | Detail page |
-| 2 | Click "Add Workaround" | Workaround form |
-| 3 | Enter workaround steps | Text entered |
-| 4 | Save workaround | Workaround saved |
-| 5 | Verify workaround displayed | Workaround visible |
+**Expected:**
+- Workaround visible in problem record
+- Can be shared with linked incidents
 
 ---
 
 #### TC-PROB-005: Add Permanent Solution
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Problem exists |
+**Role:** Agent or Admin
+**Steps:**
+1. Open a Known Error problem
+2. Click "Add Solution"
+3. Enter: "AC unit replaced on Dec 15. Network switch temperature now stable."
+4. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open problem detail | Detail page |
-| 2 | Click "Add Solution" | Solution form |
-| 3 | Enter solution details | Text entered |
-| 4 | Save solution | Solution saved |
-| 5 | Verify solution displayed | Solution visible |
-
----
-
-#### TC-PROB-006: Problem Status Workflow
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Problem exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create new problem | Status: "New" |
-| 2 | Change to "Under Investigation" | Status updates |
-| 3 | Add RCA and change to "Known Error" | Status updates |
-| 4 | Add solution and change to "Resolved" | Status updates |
-| 5 | Close problem | Status: "Closed" |
+**Expected:**
+- Solution recorded
+- Problem can be marked RESOLVED
+- Linked incidents can reference this solution
 
 ---
 
-### 3.6 Changes
+## 3.6 CHANGES MODULE
+
+### What is a Change?
+A **Change** is a planned modification to IT infrastructure or services.
+- Examples: "Upgrade email server", "Install new firewall", "Deploy software update"
+- Requires planning, approval, and rollback plan
+
+### Change Types
+| Type | Description | Approval |
+|------|-------------|----------|
+| Standard | Pre-approved, low-risk, routine | Auto-approved |
+| Normal | Regular change, needs planning | CAB approval |
+| Emergency | Urgent fix for critical issue | Expedited approval |
+
+### Change Workflow
+```
+DRAFT → SUBMITTED → PENDING_APPROVAL → APPROVED → SCHEDULED → IN_PROGRESS → COMPLETED
+                          ↓
+                       REJECTED
+```
+
+### Change Detail Page Layout
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  ← Back to Changes                             [Submit for Approval] │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  CHG-001: Upgrade Exchange Server to 2024                           │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                     │
+│                                                                      │
+│  Status: PENDING_APPROVAL      Type: Normal      Risk: Medium        │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ Description                                                   │   │
+│  │ Upgrade Exchange server from 2019 to 2024 version.           │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ Implementation Plan                                           │   │
+│  │ 1. Backup current server (2 hours)                           │   │
+│  │ 2. Stop email services (notify users)                        │   │
+│  │ 3. Run upgrade installer (1 hour)                            │   │
+│  │ 4. Test email functionality                                   │   │
+│  │ 5. Resume services                                            │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ Rollback Plan                                                 │   │
+│  │ If upgrade fails:                                             │   │
+│  │ 1. Stop services                                              │   │
+│  │ 2. Restore from backup                                        │   │
+│  │ 3. Verify email working                                       │   │
+│  │ 4. Resume services                                            │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  Scheduled: Dec 20, 2024 10:00 PM - Dec 21, 2024 2:00 AM           │
+│                                                                      │
+│  ═══════════════════════════════════════════════════════════════    │
+│  Approvals                                                          │
+│  ═══════════════════════════════════════════════════════════════    │
+│  👤 Manager Smith    ⏳ Pending                                     │
+│  👤 IT Director      ⏳ Pending                                     │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Cases for Changes
 
 #### TC-CHG-001: Create Change Request
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User has change management access |
+**Role:** Agent
+**Steps:**
+1. Login as Agent
+2. Go to Changes page
+3. Click "Create Change"
+4. Fill in ALL fields:
+   - Title: "Install new antivirus software"
+   - Description: Detailed explanation
+   - Change Type: Normal
+   - Risk Level: Low
+   - Implementation Plan: Step by step
+   - Rollback Plan: What to do if it fails
+   - Scheduled Start: Pick a future date/time
+   - Scheduled End: Pick end date/time
+5. Click "Save as Draft" or "Submit"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Changes | Changes list |
-| 2 | Click "Create Change" | Create page |
-| 3 | Enter Title | Title accepted |
-| 4 | Enter Description | Description accepted |
-| 5 | Select Change Type (Standard/Normal/Emergency) | Type set |
-| 6 | Select Risk Level | Risk set |
-| 7 | Enter Implementation Plan | Plan entered |
-| 8 | Enter Rollback Plan | Rollback entered |
-| 9 | Set Scheduled Start/End | Dates set |
-| 10 | Submit | Change created |
-
----
-
-#### TC-CHG-002: Change Approval Workflow
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Change request exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open change detail | Detail page |
-| 2 | Click "Submit for Approval" | Approval requested |
-| 3 | Verify status: "Pending Approval" | Status shown |
-| 4 | Login as CAB member/approver | - |
-| 5 | Navigate to change | Approve/Reject visible |
-| 6 | Click "Approve" | Approval recorded |
-| 7 | Check all required approvals | If all approved → "Approved" |
+**Expected:**
+- Change created with ID (CHG-XXX)
+- Status: "DRAFT" or "PENDING_APPROVAL"
 
 ---
 
-#### TC-CHG-003: Change Rejection
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Change pending approval |
+#### TC-CHG-002: Submit Change for Approval
+**Role:** Agent (who created the change)
+**Steps:**
+1. Open your draft change
+2. Click "Submit for Approval"
+3. Confirm
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Login as approver | - |
-| 2 | Open change pending approval | Detail page |
-| 3 | Click "Reject" | Rejection form |
-| 4 | Enter rejection reason | Reason required |
-| 5 | Confirm rejection | Change rejected |
-| 6 | Verify status: "Rejected" | Status updated |
-| 7 | Check requester notification | Notification sent |
+**Expected:**
+- Status changes to "PENDING_APPROVAL"
+- Approvers receive notification
+- Cannot edit change while pending (or limited editing)
 
 ---
 
-#### TC-CHG-004: Implement Change
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Change is approved |
+#### TC-CHG-003: Approve Change (Manager)
+**Role:** Manager
+**Steps:**
+1. Login as Manager
+2. Go to Changes page
+3. Find change with "PENDING_APPROVAL"
+4. Click to open
+5. Review details
+6. Click "Approve" button
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open approved change | Detail page |
-| 2 | Click "Start Implementation" | Status: "In Progress" |
-| 3 | Add implementation notes | Notes saved |
-| 4 | Click "Complete" | Completion form |
-| 5 | Select outcome (Successful/Failed) | Outcome recorded |
-| 6 | If failed, execute rollback | Rollback steps shown |
-
----
-
-#### TC-CHG-005: Emergency Change
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User has emergency change permission |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create change with type "Emergency" | Emergency flag set |
-| 2 | Verify expedited workflow | Reduced approval requirements |
-| 3 | Complete emergency change | Post-implementation review required |
+**Expected:**
+- Your approval is recorded
+- If all required approvers have approved → Status becomes "APPROVED"
+- Requester is notified
 
 ---
 
-### 3.7 Assets
+#### TC-CHG-004: Reject Change (Manager)
+**Role:** Manager
+**Steps:**
+1. Login as Manager
+2. Open pending change
+3. Click "Reject" button
+4. Enter reason: "Too risky during holiday season"
+5. Confirm
+
+**Expected:**
+- Status: "REJECTED"
+- Rejection reason visible
+- Requester notified
+
+---
+
+#### TC-CHG-005: Implement Change
+**Role:** Agent or whoever is assigned
+**Steps:**
+1. Open an "APPROVED" change (on or after scheduled date)
+2. Click "Start Implementation"
+3. Status changes to "IN_PROGRESS"
+4. Do the work (outside the system)
+5. Come back and click "Complete"
+6. Select outcome: "Successful" or "Failed"
+7. If failed, document what happened
+
+**Expected:**
+- If Successful → Status: "COMPLETED"
+- If Failed → May need to execute rollback plan
+
+---
+
+#### TC-CHG-006: Emergency Change
+**Role:** Admin
+**Steps:**
+1. Create change with Type: "Emergency"
+2. Submit for approval
+3. Notice expedited workflow (fewer approvers, faster)
+
+**Expected:**
+- Emergency changes have streamlined approval
+- But still require post-implementation review
+
+---
+
+## 3.7 ASSETS MODULE
+
+### What is an Asset?
+An **Asset** is any IT equipment or resource that needs tracking.
+- Examples: Laptops, servers, monitors, software licenses, phones
+
+### Asset Types
+- Hardware: Laptops, desktops, servers, phones
+- Software: Licenses, subscriptions
+- Network: Routers, switches, firewalls
+- Peripherals: Monitors, keyboards, mice
+
+### Asset Status Values
+| Status | Meaning |
+|--------|---------|
+| IN_STOCK | Available, not assigned |
+| IN_USE | Assigned to someone |
+| IN_REPAIR | Being fixed |
+| RETIRED | No longer in use |
+| DISPOSED | Thrown away/recycled |
+
+### Asset List Page Layout
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Assets                                          [+ Add Asset]       │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  🔍 Search...   Type: [All ▼]   Status: [All ▼]   Location: [All ▼] │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ Asset Tag  │ Name           │ Type     │ Status  │ Assigned  │   │
+│  ├────────────┼────────────────┼──────────┼─────────┼───────────┤   │
+│  │ LAPTOP-001 │ Dell XPS 15    │ Hardware │ 🟢 In Use│ John Doe │   │
+│  │ LAPTOP-002 │ MacBook Pro    │ Hardware │ 🟡 Stock │ -        │   │
+│  │ MON-001    │ Dell 27" 4K    │ Hardware │ 🟢 In Use│ Jane Doe │   │
+│  │ SW-001     │ MS Office 365  │ Software │ 🟢 In Use│ Team A   │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Cases for Assets
 
 #### TC-ASSET-001: Create Asset
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Asset types exist |
+**Role:** Admin
+**Steps:**
+1. Login as Admin
+2. Go to Assets page
+3. Click "Add Asset"
+4. Fill in:
+   - Asset Type: Hardware > Laptop
+   - Asset Name: "Dell Latitude 5520"
+   - Asset Tag: "LAP-100" (unique identifier)
+   - Serial Number: "ABC123XYZ"
+   - Status: "IN_STOCK"
+   - Location: "IT Storage Room"
+5. Click "Save"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Assets | Assets list |
-| 2 | Click "Add Asset" | Create form |
-| 3 | Select Asset Type | Type selected |
-| 4 | Enter Name | Name accepted |
-| 5 | Enter Asset Tag | Tag accepted |
-| 6 | Enter Serial Number | Serial accepted |
-| 7 | Select Status | Status set |
-| 8 | Select Assigned User | User assigned |
-| 9 | Enter Location | Location entered |
-| 10 | Save | Asset created |
-
----
-
-#### TC-ASSET-002: View Asset Details
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Asset exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Assets | Assets list |
-| 2 | Click on an asset | Detail page |
-| 3 | Verify all fields displayed | All data shown |
-| 4 | Verify linked tickets | Related incidents shown |
-| 5 | Verify asset history | History timeline |
+**Expected:**
+- Asset created
+- Visible in asset list
 
 ---
 
-#### TC-ASSET-003: Edit Asset
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Asset exists |
+#### TC-ASSET-002: Assign Asset to User
+**Role:** Admin or Manager
+**Steps:**
+1. Open an asset with status "IN_STOCK"
+2. Click "Assign" or edit and set Assigned User
+3. Select a user
+4. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open asset detail | Detail page |
-| 2 | Click "Edit" | Edit mode |
-| 3 | Modify fields | Changes made |
-| 4 | Save | Changes saved |
-| 5 | Verify updates | New values displayed |
-
----
-
-#### TC-ASSET-004: Asset Assignment
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Asset exists, user exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open asset detail | Detail page |
-| 2 | Change assigned user | User selector |
-| 3 | Select new user | User selected |
-| 4 | Save | Assignment saved |
-| 5 | Verify history | Assignment logged |
+**Expected:**
+- Status changes to "IN_USE"
+- Assigned user shows on asset
+- User can see it in their assets (if feature exists)
 
 ---
 
-#### TC-ASSET-005: Asset Type Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
+#### TC-ASSET-003: View Asset Details
+**Role:** Any with access
+**Steps:**
+1. Go to Assets
+2. Click on any asset
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Assets → Asset Types | Types list |
-| 2 | Click "Add Type" | Create form |
-| 3 | Enter type name | Name accepted |
-| 4 | Add custom fields | Fields added |
-| 5 | Save | Type created |
-| 6 | Create asset with new type | Custom fields appear |
+**Expected:**
+- See all asset information
+- See assignment history
+- See related tickets (incidents linked to this asset)
 
 ---
 
-#### TC-ASSET-006: Asset Search and Filter
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Multiple assets exist |
+#### TC-ASSET-004: Manage Asset Types
+**Role:** Admin
+**Steps:**
+1. Go to Assets → Asset Types (or Settings → Asset Types)
+2. Click "Add Type"
+3. Enter: "Printer"
+4. Add custom fields:
+   - Color/B&W (dropdown)
+   - Network IP (text)
+5. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Search by asset name | Matching assets |
-| 2 | Search by asset tag | Exact match |
-| 3 | Filter by type | Only that type |
-| 4 | Filter by status | Only that status |
-| 5 | Filter by assigned user | Only their assets |
-
----
-
-### 3.8 Knowledge Base
-
-#### TC-KB-001: Create Article
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User has KB write access |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Knowledge Base | KB page |
-| 2 | Click "Create Article" | Article editor |
-| 3 | Enter Title | Title accepted |
-| 4 | Select Category | Category selected |
-| 5 | Enter content (rich text) | Content with formatting |
-| 6 | Add tags | Tags added |
-| 7 | Save as Draft | Article saved as draft |
-| 8 | Publish | Article published |
+**Expected:**
+- New asset type created
+- When creating assets of this type, custom fields appear
 
 ---
 
-#### TC-KB-002: Search Knowledge Base
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Published articles exist |
+## 3.8 KNOWLEDGE BASE MODULE
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Knowledge Base | KB page |
-| 2 | Enter search term | - |
-| 3 | Execute search | Matching articles |
-| 4 | Verify relevance | Title/content matches |
+### What is Knowledge Base?
+A **Knowledge Base** is a library of articles, how-tos, and documentation.
+- Helps users solve problems themselves
+- Helps agents find solutions faster
 
----
+### Article States
+| State | Meaning |
+|-------|---------|
+| DRAFT | Being written, not visible to users |
+| IN_REVIEW | Submitted for approval |
+| PUBLISHED | Live, visible to everyone |
+| ARCHIVED | Hidden but not deleted |
 
-#### TC-KB-003: Browse by Category
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Articles in categories |
+### Knowledge Base Page Layout
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Knowledge Base                              [+ Create Article]      │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  🔍 Search articles...                                               │
+│                                                                      │
+│  Categories                          │  Popular Articles            │
+│  ┌────────────────────────────────┐  │  ┌────────────────────────┐  │
+│  │ 📁 Email & Communication (12)  │  │  │ How to reset password  │  │
+│  │ 📁 Network & VPN (8)           │  │  │ VPN connection guide   │  │
+│  │ 📁 Hardware (15)               │  │  │ Outlook setup          │  │
+│  │ 📁 Software (22)               │  │  │ WiFi troubleshooting   │  │
+│  │ 📁 Security (5)                │  │  └────────────────────────┘  │
+│  └────────────────────────────────┘  │                              │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Knowledge Base | Categories shown |
-| 2 | Click on a category | Category articles |
-| 3 | Click subcategory | Filtered further |
+### Test Cases for Knowledge Base
 
----
+#### TC-KB-001: Search Knowledge Base
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Go to Knowledge Base
+3. Type "password reset" in search box
+4. Press Enter or wait
 
-#### TC-KB-004: Article Versioning
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Article exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open article | Article displayed |
-| 2 | Edit article | Editor opens |
-| 3 | Make changes | Changes made |
-| 4 | Save | New version created |
-| 5 | View version history | Previous versions listed |
-| 6 | Revert to older version | Content restored |
-
----
-
-#### TC-KB-005: KB Categories Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → KB Categories | Categories list |
-| 2 | Create new category | Category created |
-| 3 | Create subcategory | Nested under parent |
-| 4 | Reorder categories | Order saved |
-| 5 | Delete empty category | Category removed |
+**Expected:**
+- Articles matching "password reset" appear
+- Results show title and snippet
+- Clicking opens full article
 
 ---
 
-### 3.9 Projects
+#### TC-KB-002: Browse by Category
+**Role:** Any
+**Steps:**
+1. Go to Knowledge Base
+2. Click on a category (e.g., "Email & Communication")
+3. See articles in that category
+4. Click on an article
+
+**Expected:**
+- Category filters articles
+- Article opens and displays content
+
+---
+
+#### TC-KB-003: Create Article
+**Role:** Agent or Admin
+**Steps:**
+1. Login as Agent
+2. Go to Knowledge Base
+3. Click "Create Article"
+4. Fill in:
+   - Title: "How to Configure VPN on Mac"
+   - Category: Select "Network & VPN"
+   - Content: Write the article (rich text editor)
+   - Tags: "vpn, mac, network"
+5. Click "Save as Draft"
+
+**Expected:**
+- Article saved as draft
+- Only you (and admins) can see it
+
+---
+
+#### TC-KB-004: Publish Article
+**Role:** Admin or Manager
+**Steps:**
+1. Open a draft article
+2. Click "Publish"
+3. Confirm
+
+**Expected:**
+- Article status: "PUBLISHED"
+- Now visible to all users
+- Appears in search results
+
+---
+
+#### TC-KB-005: End User Cannot Create Articles
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Go to Knowledge Base
+
+**Expected:**
+- "Create Article" button is NOT visible
+- End user can only search and read
+
+---
+
+## 3.9 PROJECTS MODULE
+
+### What is the Projects Module?
+A **Project Management** feature with Kanban boards for IT projects.
+- Track tasks, bugs, features
+- Organize in sprints
+- Assign to team members
+
+### Key Concepts
+| Term | Meaning |
+|------|---------|
+| Project | A container for related work (e.g., "Website Redesign") |
+| Project Key | Short code like "WEB", "API", "HR" (no hyphens!) |
+| Task | A work item: task, bug, feature, or story |
+| Task ID | Format: KEY-1, KEY-2, etc. (e.g., WEB-1, WEB-2) |
+| Sprint | A time-boxed period (usually 2 weeks) |
+
+### Task Status Columns
+```
+BACKLOG → TODO → IN_PROGRESS → IN_REVIEW → DONE
+```
+
+### Project Board (Kanban) Layout
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Project: Website Redesign (WEB)                    [+ Create Task]         │
+│  Sprint 1 (Dec 1-15) • 5 tasks • 21 story points                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  BACKLOG      TODO          IN PROGRESS    IN REVIEW      DONE             │
+│  (gray)       (blue)        (yellow)       (purple)       (green)          │
+│  ┌─────┐      ┌─────┐       ┌─────┐        ┌─────┐       ┌─────┐          │
+│  │WEB-5│      │WEB-2│       │WEB-1│        │WEB-4│       │WEB-3│          │
+│  │     │      │     │       │     │        │     │       │     │          │
+│  │📋 Task│    │🐛 Bug│      │✨Feature│    │📋 Task│     │📋 Task│         │
+│  │🔴 High│    │🟡 Med│      │🔴 High│      │🟢 Low│      │🟡 Med│         │
+│  │3 pts │      │2 pts│       │8 pts │       │1 pt  │      │5 pts │         │
+│  │👤 John│    │👤 Jane│     │👤 Bob │      │👤 Amy │     │👤 Tom │        │
+│  └─────┘      └─────┘       └─────┘        └─────┘       └─────┘          │
+│               ┌─────┐                                                       │
+│               │WEB-6│                                                       │
+│               │Story│                                                       │
+│               └─────┘                                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Cases for Projects
 
 #### TC-PROJ-001: Create Project
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User has project creation access |
+**Role:** Admin or Manager
+**Steps:**
+1. Login as Admin
+2. Go to Projects page
+3. Click "New Project"
+4. Fill in:
+   - Project Name: "Mobile App Development"
+   - Project Key: "MOB" (2-10 chars, letters & numbers only, NO HYPHENS)
+   - Description: "Build iOS and Android app"
+   - Project Lead: Select yourself or a manager
+   - Start Date: Today
+   - End Date: 3 months from now
+5. Click "Create"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Projects | Projects list |
-| 2 | Click "New Project" | Create modal |
-| 3 | Enter Project Name | Name accepted |
-| 4 | Enter Project Key (e.g., "WEB") | Key accepted (uppercase, no hyphens) |
-| 5 | Enter Description | Description accepted |
-| 6 | Select Project Lead | Lead assigned |
-| 7 | Set Start/End dates | Dates set |
-| 8 | Submit | Project created |
-| 9 | Verify redirect to project | Project board shown |
+**Expected:**
+- Project created
+- Redirected to project board
+- Empty board with status columns
 
----
-
-#### TC-PROJ-002: Project Key Validation
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | None |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Try key "WR-1" (with hyphen) | Error: only letters/numbers |
-| 2 | Try key "A" (1 char) | Error: min 2 characters |
-| 3 | Try key "VERYLONGKEY123" (>10 chars) | Error: max 10 characters |
-| 4 | Try key "WR2" | Accepted |
+**IMPORTANT - Project Key Rules:**
+- ✅ Valid: "MOB", "WEB", "API", "HR2"
+- ❌ Invalid: "MOB-1" (no hyphens), "A" (too short), "VERYLONGKEY" (too long)
 
 ---
 
-#### TC-PROJ-003: Project Board View
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Project exists |
+#### TC-PROJ-002: Create Task in Project
+**Role:** Any with project access
+**Steps:**
+1. Open a project board
+2. Click "+ Create Task"
+3. Fill in:
+   - Title: "Design login screen"
+   - Type: Feature
+   - Priority: High
+   - Description: Details about the work
+   - Assignee: Select team member
+   - Story Points: 5
+   - Due Date: Pick a date
+4. Click "Create"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open project | Board tab active |
-| 2 | Verify columns | BACKLOG, TODO, IN_PROGRESS, IN_REVIEW, DONE |
-| 3 | Verify column colors | Each column has distinct color |
-| 4 | Verify task cards | Tasks in correct columns |
-
----
-
-#### TC-PROJ-004: Create Task
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Project exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open project board | Board displayed |
-| 2 | Click "Create Task" | Task modal |
-| 3 | Enter Title | Title accepted |
-| 4 | Select Type (Task/Bug/Feature/Story) | Type set |
-| 5 | Select Priority | Priority set |
-| 6 | Select Assignee | Assignee set |
-| 7 | Enter Story Points | Points set |
-| 8 | Set Due Date | Date set |
-| 9 | Submit | Task created |
-| 10 | Verify task number | Format: KEY-1, KEY-2, etc. |
+**Expected:**
+- Task created with ID "MOB-1" (or next number)
+- Task appears in "BACKLOG" column
+- Task card shows type icon, priority color, assignee
 
 ---
 
-#### TC-PROJ-005: Drag Task on Kanban
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Tasks exist |
+#### TC-PROJ-003: Drag Task on Kanban Board
+**Role:** Assignee or Admin
+**Steps:**
+1. Open project board
+2. Find a task in "TODO" column
+3. Click and drag it
+4. Drop it in "IN_PROGRESS" column
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open project board | Board displayed |
-| 2 | Drag task from BACKLOG | Dragging visual |
-| 3 | Drop on IN_PROGRESS | Task moves |
-| 4 | Verify status update | Task now in IN_PROGRESS |
-| 5 | Verify toast message | "Task moved successfully" |
-
----
-
-#### TC-PROJ-006: Create Sprint
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Project exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Go to project Sprints tab | Sprints list |
-| 2 | Click "Create Sprint" | Sprint modal |
-| 3 | Enter Sprint Name | Name accepted |
-| 4 | Enter Sprint Goal | Goal accepted |
-| 5 | Set Start/End dates | Dates set |
-| 6 | Submit | Sprint created |
+**Expected:**
+- Task moves to new column
+- Toast: "Task moved successfully"
+- Status saved immediately
 
 ---
 
-#### TC-PROJ-007: Start Sprint
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Sprint exists with tasks |
+#### TC-PROJ-004: View Task Details
+**Role:** Any with access
+**Steps:**
+1. Click on any task card
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Go to Sprints tab | Sprint listed |
-| 2 | Click "Start Sprint" | Confirmation |
-| 3 | Confirm | Sprint started |
-| 4 | Verify board shows sprint | Sprint info bar visible |
-| 5 | Verify task count | Correct tasks in sprint |
+**Expected:**
+- Modal/page opens with full details
+- Can edit fields
+- Can add comments
+- Can change status
 
 ---
 
-#### TC-PROJ-008: Complete Sprint
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Sprint is active |
+#### TC-PROJ-005: Create Sprint
+**Role:** Project Lead or Admin
+**Steps:**
+1. Open project
+2. Go to "Sprints" tab
+3. Click "Create Sprint"
+4. Fill in:
+   - Sprint Name: "Sprint 1"
+   - Goal: "Complete authentication module"
+   - Start Date: Dec 1
+   - End Date: Dec 15
+5. Create
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Go to Sprints tab | Active sprint shown |
-| 2 | Click "Complete Sprint" | Completion modal |
-| 3 | Handle incomplete tasks | Move to backlog or next sprint |
-| 4 | Confirm | Sprint completed |
-| 5 | Verify sprint stats | Completed points shown |
-
----
-
-#### TC-PROJ-009: Task Detail View
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Task exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click on task card | Detail modal opens |
-| 2 | Verify all fields | Title, description, type, priority, etc. |
-| 3 | Verify assignee | Avatar and name |
-| 4 | Verify story points | Points displayed |
-| 5 | Add comment | Comment added |
-| 6 | Change status | Status updated |
-| 7 | Close modal | Modal closes |
+**Expected:**
+- Sprint created (not started yet)
+- Can add tasks to sprint
 
 ---
 
-#### TC-PROJ-010: Project Settings
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Project exists, user is lead/admin |
+#### TC-PROJ-006: Start Sprint
+**Role:** Project Lead
+**Steps:**
+1. Make sure sprint has tasks assigned to it
+2. Click "Start Sprint"
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Go to project Settings tab | Settings page |
-| 2 | Edit project name | Name updated |
-| 3 | Change project lead | Lead updated |
-| 4 | Modify board columns | Columns updated |
-| 5 | Add project member | Member added |
-| 6 | Remove project member | Member removed |
+**Expected:**
+- Sprint becomes active
+- Board shows sprint info bar
+- Only active sprint tasks shown on board
 
 ---
 
-### 3.10 Live Chat
+#### TC-PROJ-007: Complete Sprint
+**Role:** Project Lead
+**Steps:**
+1. When sprint end date reached (or manually)
+2. Click "Complete Sprint"
+3. Handle incomplete tasks:
+   - Move to backlog
+   - Move to next sprint
+4. Confirm
 
-#### TC-CHAT-001: Start New Conversation
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | User logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Chat | Chat interface |
-| 2 | Click "New Conversation" | New chat modal |
-| 3 | Select recipient(s) | Recipients selected |
-| 4 | Enter initial message | Message typed |
-| 5 | Send | Conversation created |
-
----
-
-#### TC-CHAT-002: Send and Receive Messages
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Conversation exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open conversation | Chat history shown |
-| 2 | Type message | Text in input |
-| 3 | Press Enter or Send | Message sent |
-| 4 | Verify message appears | Message in chat |
-| 5 | Receive reply (from other user) | Reply appears in real-time |
+**Expected:**
+- Sprint marked complete
+- Stats shown (completed points vs planned)
+- Incomplete tasks moved as selected
 
 ---
 
-#### TC-CHAT-003: Chat Notifications
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Two users logged in |
+## 3.10 LIVE CHAT MODULE
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | User A sends message to User B | Message sent |
-| 2 | User B (on different page) | Notification badge on Chat |
-| 3 | User B opens Chat | Unread indicator on conversation |
-| 4 | User B reads message | Unread cleared |
+### What is Live Chat?
+Real-time messaging between users and support agents.
+- Users can chat with IT support
+- Agents handle multiple conversations
 
----
+### Test Cases for Chat
 
-### 3.11 Reports
+#### TC-CHAT-001: User Starts Chat
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Click "Chat" in sidebar
+3. Click "Start New Conversation"
+4. Select "IT Support" or available agent
+5. Type message: "Hi, I need help with my email"
+6. Send
 
-#### TC-RPT-001: View Dashboard Reports
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Data exists in system |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Reports | Reports page |
-| 2 | Select report type | Report loads |
-| 3 | Verify chart renders | Visual chart displayed |
-| 4 | Verify data accuracy | Numbers match actual data |
+**Expected:**
+- Conversation created
+- Message appears in chat window
+- Waiting for agent response
 
 ---
 
-#### TC-RPT-002: Generate Custom Report
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Data exists |
+#### TC-CHAT-002: Agent Responds to Chat
+**Role:** Agent
+**Steps:**
+1. Login as Agent
+2. Go to Chat
+3. See incoming conversation notification
+4. Click to open conversation
+5. Read user's message
+6. Type response: "Hi, I can help. What's the issue?"
+7. Send
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Reports | Reports page |
-| 2 | Select date range | Range applied |
-| 3 | Select filters | Filters applied |
-| 4 | Generate report | Report generated |
-| 5 | View results | Data displayed |
-
----
-
-#### TC-RPT-003: Export Report
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Report generated |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Generate a report | Report displayed |
-| 2 | Click "Export PDF" | PDF downloads |
-| 3 | Open PDF | Report data in PDF |
-| 4 | Click "Export Excel" | Excel downloads |
-| 5 | Open Excel | Report data in spreadsheet |
+**Expected:**
+- Agent can see user's messages
+- Response sent
+- User sees response in real-time
 
 ---
 
-#### TC-RPT-004: Schedule Report
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Report configuration exists |
+#### TC-CHAT-003: Chat Notification
+**Role:** Agent (on different page)
+**Steps:**
+1. Login as Agent
+2. Go to Dashboard (not Chat)
+3. Have another user send you a chat message
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Scheduled Reports | Schedules list |
-| 2 | Click "Create Schedule" | Schedule form |
-| 3 | Select report type | Type selected |
-| 4 | Set frequency (daily/weekly/monthly) | Frequency set |
-| 5 | Enter recipient emails | Emails entered |
-| 6 | Save | Schedule created |
-| 7 | Wait for scheduled time | Report email received |
+**Expected:**
+- Notification bell shows number
+- Badge on Chat menu item
+- Can click to go to Chat
 
 ---
 
-### 3.12 Settings & Administration
+## 3.11 REPORTS MODULE
 
-#### TC-SET-001: Categories Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
+### What Reports Are Available?
+- Incident statistics (by status, priority, category)
+- Agent performance (resolution time, volume)
+- SLA compliance
+- Change success rate
+- Asset inventory
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Categories | Categories page |
-| 2 | Click "Add Category" | Create form |
-| 3 | Enter category name | Name accepted |
-| 4 | Add subcategories | Subcategories created |
-| 5 | Edit existing category | Edit mode |
-| 6 | Delete unused category | Category removed |
+### Test Cases for Reports
 
----
+#### TC-RPT-001: View Incident Report
+**Role:** Manager or Admin
+**Steps:**
+1. Go to Reports page
+2. Select "Incident Analytics"
+3. Set date range: Last 30 days
 
-#### TC-SET-002: SLA Policies
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → SLA Policies | SLA page |
-| 2 | Click "Add Policy" | Policy form |
-| 3 | Enter policy name | Name accepted |
-| 4 | Set priority conditions | Conditions set |
-| 5 | Set response time | Time set |
-| 6 | Set resolution time | Time set |
-| 7 | Save | Policy created |
-| 8 | Create ticket matching conditions | SLA applied to ticket |
+**Expected:**
+- Charts show:
+  - Tickets by status (pie chart)
+  - Tickets over time (line chart)
+  - Top categories (bar chart)
+- Numbers match actual data
 
 ---
 
-#### TC-SET-003: Service Request Templates
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin/Manager access |
+#### TC-RPT-002: Export Report
+**Role:** Manager or Admin
+**Steps:**
+1. Generate any report
+2. Click "Export PDF" button
+3. Save file
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Service Templates | Templates page |
-| 2 | Click "Add Template" | Template form |
-| 3 | Enter template name | Name accepted |
-| 4 | Select icon | Icon selected |
-| 5 | Enter description | Description accepted |
-| 6 | Set estimated days | Days set |
-| 7 | Toggle requires approval | Setting saved |
-| 8 | Save | Template created |
-| 9 | Verify in Service Catalog | Template appears |
+**Expected:**
+- PDF downloads
+- Contains report data and charts
 
 ---
 
-#### TC-SET-004: Email Templates
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Admin access |
+#### TC-RPT-003: End User Cannot Access Reports
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Look at sidebar
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Email Templates | Templates list |
-| 2 | Select template to edit | Editor opens |
-| 3 | Modify subject | Subject updated |
-| 4 | Modify body | Body updated |
-| 5 | Use variables ({{ticket_number}}) | Variables accepted |
-| 6 | Save | Template saved |
-| 7 | Trigger email scenario | New template used |
+**Expected:**
+- "Reports" menu item is NOT visible
+- If manually go to /reports URL → Access denied
 
 ---
 
-#### TC-SET-005: Groups Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
+## 3.12 SETTINGS MODULE
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Groups | Groups page |
-| 2 | Click "Add Group" | Create form |
-| 3 | Enter group name | Name accepted |
-| 4 | Add members | Members added |
-| 5 | Save | Group created |
-| 6 | Assign ticket to group | Group members can view |
+### Settings Available by Role
 
----
+| Setting | Admin | Manager | Agent | User |
+|---------|-------|---------|-------|------|
+| General/System | ✅ | ❌ | ❌ | ❌ |
+| Categories | ✅ | ✅ | ❌ | ❌ |
+| SLA Policies | ✅ | ✅ | ❌ | ❌ |
+| Service Templates | ✅ | ✅ | ❌ | ❌ |
+| Groups | ✅ | ✅ | ❌ | ❌ |
+| Users | ✅ | ❌ | ❌ | ❌ |
+| Roles | ✅ | ❌ | ❌ | ❌ |
+| Integrations | ✅ | ❌ | ❌ | ❌ |
 
-#### TC-SET-006: System Settings
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | Admin access |
+### Test Cases for Settings
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → System | System settings |
-| 2 | Modify company name | Name updated |
-| 3 | Change timezone | Timezone updated |
-| 4 | Toggle features | Features enabled/disabled |
-| 5 | Save | Settings saved |
+#### TC-SET-001: Manage Categories
+**Role:** Admin
+**Steps:**
+1. Go to Settings → Categories
+2. Click "Add Category"
+3. Enter: "Printing Issues"
+4. Add subcategories:
+   - "Printer Offline"
+   - "Paper Jam"
+   - "Print Quality"
+5. Save
 
----
-
-### 3.13 User Management
-
-#### TC-USER-001: Create User
-| Field | Value |
-|-------|-------|
-| **Priority** | Critical |
-| **Precondition** | Admin access |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Users | Users list |
-| 2 | Click "Add User" | Create form |
-| 3 | Enter email | Email accepted |
-| 4 | Enter full name | Name accepted |
-| 5 | Select role | Role selected |
-| 6 | Set password | Password set |
-| 7 | Save | User created |
-| 8 | New user logs in | Login successful |
+**Expected:**
+- Category created with subcategories
+- Visible when creating tickets
 
 ---
 
-#### TC-USER-002: Edit User
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User exists |
+#### TC-SET-002: Create SLA Policy
+**Role:** Admin
+**Steps:**
+1. Go to Settings → SLA Policies
+2. Click "Add Policy"
+3. Enter:
+   - Name: "Critical Incidents"
+   - Condition: Priority = Critical
+   - Response Time: 15 minutes
+   - Resolution Time: 2 hours
+4. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Users | Users list |
-| 2 | Click on user | User detail/edit |
-| 3 | Modify name | Name updated |
-| 4 | Change role | Role updated |
-| 5 | Save | Changes saved |
-
----
-
-#### TC-USER-003: Deactivate User
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User exists |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Users | Users list |
-| 2 | Click on user | User detail |
-| 3 | Toggle "Active" off | User deactivated |
-| 4 | Deactivated user tries to login | Login rejected |
+**Expected:**
+- Policy created
+- When creating Critical priority incident, SLA timer starts
 
 ---
 
-#### TC-USER-004: Role Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Admin access |
+#### TC-SET-003: Create Service Template
+**Role:** Admin or Manager
+**Steps:**
+1. Go to Settings → Service Templates
+2. Click "Add Template"
+3. Enter:
+   - Name: "New Laptop Request"
+   - Icon: 💻
+   - Description: "Request a new laptop computer"
+   - Estimated Days: 7
+   - Requires Approval: Yes
+4. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to Settings → Roles | Roles list |
-| 2 | View existing roles | Roles displayed |
-| 3 | Click "Add Role" | Create form |
-| 4 | Enter role name | Name accepted |
-| 5 | Set permissions | Permissions checked |
-| 6 | Save | Role created |
-| 7 | Assign user to new role | Role applied |
-| 8 | Verify permissions | Access matches permissions |
-
----
-
-#### TC-USER-005: Profile Management
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click profile avatar | Profile menu |
-| 2 | Click "Profile" | Profile page |
-| 3 | Edit full name | Name updated |
-| 4 | Upload avatar | Avatar uploaded |
-| 5 | Change password | Password updated |
-| 6 | Save | Changes saved |
-| 7 | Verify avatar in header | New avatar shown |
+**Expected:**
+- Template created
+- Appears in Service Catalog when users make requests
 
 ---
 
-### 3.14 Notifications
+#### TC-SET-004: Manage Users
+**Role:** Admin (ONLY)
+**Steps:**
+1. Go to Settings → Users
+2. Click "Add User"
+3. Enter:
+   - Email: newagent@company.com
+   - Full Name: New Agent
+   - Role: Agent
+   - Password: (set initial password)
+4. Save
 
-#### TC-NOTIF-001: In-App Notifications
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | User logged in |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Trigger notification event | (assign ticket to user) |
-| 2 | Check notification bell | Badge shows count |
-| 3 | Click notification bell | Dropdown with notifications |
-| 4 | Click on notification | Navigate to related item |
-| 5 | Mark as read | Notification marked |
+**Expected:**
+- User created
+- User can login with provided credentials
 
 ---
 
-#### TC-NOTIF-002: Email Notifications
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | Email configured, user has email preferences on |
+#### TC-SET-005: Manage Roles
+**Role:** Admin (ONLY)
+**Steps:**
+1. Go to Settings → Roles
+2. View existing roles
+3. Click "Add Role"
+4. Name: "Senior Agent"
+5. Set permissions (checkboxes):
+   - ✅ View all incidents
+   - ✅ Edit all incidents
+   - ✅ Create problems
+   - ❌ Manage users
+   - etc.
+6. Save
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Assign ticket to user | Assignment made |
-| 2 | Check user's email | Email notification received |
-| 3 | Verify email content | Contains ticket details |
-| 4 | Click link in email | Opens ticket in app |
+**Expected:**
+- Role created
+- Can assign users to this role
+- Users get specified permissions
+
+---
+
+#### TC-SET-006: End User Cannot Access Settings
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Look for Settings in sidebar
+
+**Expected:**
+- Settings menu NOT visible
+- If manually go to /settings URL → Redirected or access denied
+
+---
+
+## 3.13 NOTIFICATIONS MODULE
+
+### Notification Types
+| Event | Who Gets Notified |
+|-------|-------------------|
+| Ticket assigned | Assigned agent |
+| Ticket status changed | Reporter and assignee |
+| Comment added | Reporter and assignee |
+| SLA warning | Assignee and manager |
+| SLA breach | Assignee, manager, admin |
+| Change needs approval | Approvers |
+| Change approved/rejected | Requester |
+
+### Test Cases for Notifications
+
+#### TC-NOTIF-001: In-App Notification
+**Role:** Multiple users
+**Steps:**
+1. Login as Admin
+2. Create incident and assign to Agent John
+3. Login as Agent John
+4. Look at notification bell (top right)
+
+**Expected:**
+- Bell shows number badge (1)
+- Click bell → shows "You were assigned incident INC-XXX"
+- Click notification → goes to that incident
+
+---
+
+#### TC-NOTIF-002: Email Notification
+**Role:** Any
+**Prerequisite:** Email must be configured (SMTP settings)
+**Steps:**
+1. Admin assigns ticket to agent@test.com
+2. Check agent's email inbox
+
+**Expected:**
+- Email received: "You have been assigned ticket INC-XXX"
+- Email contains link to ticket
+
+**If email not received:**
+- Check spam folder
+- Verify SMTP is configured (ask Admin to check)
+- Note: Email may not work if SMTP not set up
 
 ---
 
 #### TC-NOTIF-003: Notification Preferences
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | User logged in |
+**Role:** Any
+**Steps:**
+1. Go to Profile (click avatar → Profile)
+2. Find "Notification Settings" section
+3. Toggle off "Email on ticket assigned"
+4. Save
+5. Have someone assign you a ticket
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Go to Profile → Notifications | Preferences page |
-| 2 | Toggle "Email on ticket assigned" off | Preference saved |
-| 3 | Assign ticket to user | Assignment made |
-| 4 | Check email | No email received |
-| 5 | Check in-app notification | Notification still received |
+**Expected:**
+- In-app notification: YES
+- Email notification: NO (because you turned it off)
 
 ---
 
-### 3.15 AI Chatbot
+## 3.14 AI CHATBOT MODULE
+
+### What is the AI Chatbot?
+An AI assistant that helps users:
+- Find knowledge base articles
+- Answer common questions
+- Help create tickets
+
+### Test Cases for AI Chatbot
 
 #### TC-AI-001: Open AI Assistant
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | AI chatbot enabled |
+**Role:** Any
+**Steps:**
+1. Look for floating chat button (usually bottom right)
+2. Click to open
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click AI Assistant button | Chat widget opens |
-| 2 | Verify welcome message | Greeting displayed |
-| 3 | Type question | Text entered |
-| 4 | Send | Response generated |
+**Expected:**
+- Chat window opens
+- Shows welcome message
+- Has text input field
 
 ---
 
-#### TC-AI-002: KB Article Suggestions
-| Field | Value |
-|-------|-------|
-| **Priority** | High |
-| **Precondition** | KB articles exist |
+#### TC-AI-002: Ask Question
+**Role:** Any
+**Steps:**
+1. Open AI Assistant
+2. Type: "How do I reset my password?"
+3. Send
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open AI Assistant | Widget opens |
-| 2 | Ask about common issue | - |
-| 3 | Verify KB suggestions | Related articles shown |
-| 4 | Click article link | Article opens |
-
----
-
-#### TC-AI-003: Create Ticket via AI
-| Field | Value |
-|-------|-------|
-| **Priority** | Medium |
-| **Precondition** | AI chatbot enabled |
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open AI Assistant | Widget opens |
-| 2 | Describe an issue | - |
-| 3 | AI suggests creating ticket | Option shown |
-| 4 | Confirm ticket creation | Ticket created |
-| 5 | Verify ticket details | AI-filled details correct |
+**Expected:**
+- AI responds with helpful answer
+- May suggest KB articles
+- Response is relevant to question
 
 ---
 
-## 4. Integration Tests
+#### TC-AI-003: AI Suggests Creating Ticket
+**Role:** End User
+**Steps:**
+1. Open AI Assistant
+2. Type: "My laptop is broken and I need help"
+3. AI may ask clarifying questions
+4. Eventually AI suggests: "Would you like me to create a support ticket?"
+5. Confirm
 
-### TC-INT-001: Ticket to Asset Link
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create incident mentioning asset | Incident created |
-| 2 | Link asset to incident | Asset linked |
-| 3 | View asset detail | Incident appears in related |
-| 4 | View incident detail | Asset appears in related |
-
----
-
-### TC-INT-002: Problem to Incident Link
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create multiple related incidents | Incidents created |
-| 2 | Create problem | Problem created |
-| 3 | Link incidents to problem | Links established |
-| 4 | Resolve problem | - |
-| 5 | Verify incident notification | Linked incidents notified |
+**Expected:**
+- Ticket created with details from conversation
+- Ticket ID provided
+- Can view ticket in My Incidents
 
 ---
 
-### TC-INT-003: Change to Ticket Link
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create change from incident | Change created with link |
-| 2 | View change | Related incident shown |
-| 3 | Complete change | - |
-| 4 | Verify incident update | Incident reflects change |
+# PART 4: INTEGRATION FLOWS
 
----
+## 4.1 End-to-End: User Reports Problem → Agent Resolves
 
-### TC-INT-004: SLA Breach Workflow
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create high priority ticket | SLA timer starts |
-| 2 | Wait for SLA warning threshold | Warning notification |
-| 3 | Wait for SLA breach | Breach notification |
-| 4 | Verify ticket flagged | SLA breach indicator |
-| 5 | Check reports | Breach recorded in metrics |
-
----
-
-## 5. Performance Tests
-
-### TC-PERF-001: Page Load Times
-| Page | Maximum Load Time |
-|------|-------------------|
-| Login | < 2 seconds |
-| Dashboard | < 3 seconds |
-| Incidents List | < 3 seconds |
-| Incident Detail | < 2 seconds |
-| Projects Board | < 3 seconds |
-| Reports | < 5 seconds |
-
----
-
-### TC-PERF-002: Search Performance
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Search with common term | Results < 2 seconds |
-| 2 | Search with filters | Results < 2 seconds |
-| 3 | Search across modules | Results < 3 seconds |
-
----
-
-### TC-PERF-003: Bulk Operations
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Load 100+ tickets in list | Loads without hanging |
-| 2 | Bulk update 50 tickets | Completes < 10 seconds |
-| 3 | Export 1000 records | Export completes |
-
----
-
-### TC-PERF-004: Concurrent Users
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | 10 users access simultaneously | No errors |
-| 2 | All perform CRUD operations | Operations complete |
-| 3 | Verify no data corruption | Data integrity maintained |
-
----
-
-## 6. Security Tests
-
-### TC-SEC-001: SQL Injection
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Enter `'; DROP TABLE users; --` in search | No SQL executed |
-| 2 | Enter SQL in form fields | Input sanitized |
-| 3 | Check database | No damage |
-
----
-
-### TC-SEC-002: XSS (Cross-Site Scripting)
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Enter `<script>alert('XSS')</script>` in title | Script not executed |
-| 2 | Enter script in description | Script sanitized |
-| 3 | Enter script in comments | Script sanitized |
-
----
-
-### TC-SEC-003: CSRF Protection
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Copy form from another site | - |
-| 2 | Submit to API | Request rejected |
-
----
-
-### TC-SEC-004: Authentication Bypass
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Access API without token | 401 Unauthorized |
-| 2 | Access API with expired token | 401 Unauthorized |
-| 3 | Access API with invalid token | 401 Unauthorized |
-| 4 | Modify JWT token | Request rejected |
-
----
-
-### TC-SEC-005: Authorization
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | User accesses admin endpoint | 403 Forbidden |
-| 2 | Agent tries to delete user | 403 Forbidden |
-| 3 | User A accesses User B's private data | 403 Forbidden |
-
----
-
-### TC-SEC-006: Password Security
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Set weak password "123" | Rejected |
-| 2 | Set password without special char | Rejected (if policy) |
-| 3 | View user in database | Password is hashed |
-
----
-
-## 7. UI/UX Tests
-
-### TC-UX-001: Form Validation
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Submit empty required field | Validation error shown |
-| 2 | Enter invalid email format | Format error shown |
-| 3 | Enter invalid date | Date error shown |
-| 4 | Error messages are clear | User understands issue |
-
----
-
-### TC-UX-002: Loading States
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Load any page | Loading spinner shown |
-| 2 | Submit any form | Button shows loading state |
-| 3 | Fetch data | Loading indicator visible |
-
----
-
-### TC-UX-003: Error Handling
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Trigger API error | User-friendly error message |
-| 2 | Network disconnection | Appropriate error shown |
-| 3 | 404 page | Custom 404 page displayed |
-
----
-
-### TC-UX-004: Toast Notifications
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Create item successfully | Success toast appears |
-| 2 | Update item successfully | Success toast appears |
-| 3 | Error occurs | Error toast appears |
-| 4 | Toast auto-dismisses | Dismisses after 3-5 seconds |
-
----
-
-### TC-UX-005: Modal Behavior
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open modal | Modal centered, backdrop visible |
-| 2 | Click outside modal | Modal closes (if dismissible) |
-| 3 | Press Escape | Modal closes |
-| 4 | Submit form in modal | Modal closes on success |
-
----
-
-### TC-UX-006: Navigation
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Click sidebar menu item | Correct page loads |
-| 2 | Active menu highlighted | Visual indicator on current page |
-| 3 | Breadcrumbs clickable | Navigate correctly |
-| 4 | Browser back button | Returns to previous page |
-
----
-
-### TC-UX-007: Accessibility
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Tab through form | Logical tab order |
-| 2 | Screen reader test | Elements have labels |
-| 3 | Color contrast | Meets WCAG standards |
-| 4 | Focus indicators | Visible focus rings |
-
----
-
-## 8. Mobile Responsiveness
-
-### TC-MOB-001: Mobile Navigation
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open on mobile | Hamburger menu visible |
-| 2 | Click hamburger | Side menu slides in |
-| 3 | Click menu item | Navigation works |
-| 4 | Click outside menu | Menu closes |
-
----
-
-### TC-MOB-002: Mobile Forms
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Open create form | Form fits screen |
-| 2 | Fields are full width | No horizontal scroll |
-| 3 | Keyboard opens | Form scrolls appropriately |
-| 4 | Submit form | Works correctly |
-
----
-
-### TC-MOB-003: Mobile Tables
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | View incidents list | Cards or scrollable table |
-| 2 | Tap on item | Detail page opens |
-| 3 | Horizontal scroll | Smooth scrolling |
-
----
-
-### TC-MOB-004: Mobile Kanban
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | View kanban on mobile | Horizontal scroll for columns |
-| 2 | Tap card | Detail opens |
-| 3 | Drag card | Works or alternative UI |
-
----
-
-## 9. Bug Report Template
-
-When reporting bugs, use this template:
-
-```markdown
-## Bug Report
-
-**Bug ID:** BUG-XXX
-**Date Found:** YYYY-MM-DD
-**Reported By:** [Name]
-**Severity:** Critical / High / Medium / Low
-**Priority:** P1 / P2 / P3 / P4
-
-### Environment
-- Browser: Chrome 120
-- OS: Windows 11
-- Screen: 1920x1080
-- User Role: Admin/Agent/User
-
-### Description
-Brief description of the bug
-
-### Steps to Reproduce
-1. Step one
-2. Step two
-3. Step three
-
-### Expected Result
-What should happen
-
-### Actual Result
-What actually happens
-
-### Screenshots/Videos
-[Attach files]
-
-### Console Errors
+### Complete Flow
 ```
-Paste any console errors here
+1. End User creates incident: "My email won't send"
+2. System assigns ticket ID: INC-050
+3. Manager sees new ticket, assigns to Agent John
+4. Agent John receives notification
+5. Agent John investigates, adds comment: "Please try clearing cache"
+6. End User replies: "That worked!"
+7. Agent John changes status to RESOLVED
+8. End User confirms, ticket CLOSED
 ```
 
-### Network Errors
-[Include failed API calls if relevant]
+### How to Test This Flow
 
-### Additional Notes
-Any other relevant information
+**Step 1: End User Creates Ticket**
+- Login as End User
+- Create incident: "My email won't send attachments"
+- Note the ticket ID
+
+**Step 2: Manager Assigns**
+- Logout, login as Manager
+- Go to Incidents
+- Find the new ticket
+- Assign to an Agent
+- Verify agent notification
+
+**Step 3: Agent Works Ticket**
+- Logout, login as Agent
+- Check notifications (should see assignment)
+- Open the ticket
+- Add comment: "Please check file size"
+- Change status to IN_PROGRESS
+
+**Step 4: User Responds**
+- Login as End User
+- Open your ticket
+- Add comment: "Files are under 1MB"
+
+**Step 5: Agent Resolves**
+- Login as Agent
+- Read user response
+- Add comment: "Fixed the mail server config"
+- Change status to RESOLVED
+
+**Step 6: User Confirms & Close**
+- Login as End User
+- See resolved status
+- Add comment: "Confirmed working"
+- (Agent or Admin closes the ticket)
+
+---
+
+## 4.2 End-to-End: Change Request Approval
+
+### Complete Flow
+```
+1. Agent creates change request for server upgrade
+2. Agent submits for approval
+3. Manager 1 reviews and approves
+4. Manager 2 reviews and approves
+5. Change status becomes APPROVED
+6. Agent implements change
+7. Agent marks change as COMPLETED (successful)
 ```
 
----
+### How to Test This Flow
 
-## 10. Test Execution Checklist
+**Step 1-2: Agent Creates and Submits**
+- Login as Agent
+- Create change with all required fields
+- Submit for approval
 
-### Pre-Release Checklist
+**Step 3-4: Managers Approve**
+- Login as Manager 1
+- Open change, click Approve
+- Login as Manager 2 (if required)
+- Open change, click Approve
 
-#### Authentication
-- [ ] TC-AUTH-001: Valid login
-- [ ] TC-AUTH-002: Invalid login
-- [ ] TC-AUTH-003: Empty fields
-- [ ] TC-AUTH-004: Logout
-- [ ] TC-AUTH-005: Password reset
+**Step 5: Check Status**
+- Change should now be APPROVED
 
-#### Incidents
-- [ ] TC-INC-001: Create incident
-- [ ] TC-INC-004: View details
-- [ ] TC-INC-005: Update status
-- [ ] TC-INC-006: Assign
-- [ ] TC-INC-007: Add comment
-- [ ] TC-INC-008: Filter
-- [ ] TC-INC-009: Search
-- [ ] TC-INC-010: Kanban drag
-
-#### Service Requests
-- [ ] TC-SR-001: View catalog
-- [ ] TC-SR-002: Create request
-- [ ] TC-SR-004: Approval flow
-
-#### Problems
-- [ ] TC-PROB-001: Create problem
-- [ ] TC-PROB-002: Link incident
-- [ ] TC-PROB-003: Add RCA
-
-#### Changes
-- [ ] TC-CHG-001: Create change
-- [ ] TC-CHG-002: Approval workflow
-- [ ] TC-CHG-004: Implement
-
-#### Assets
-- [ ] TC-ASSET-001: Create asset
-- [ ] TC-ASSET-002: View details
-- [ ] TC-ASSET-003: Edit
-
-#### Knowledge Base
-- [ ] TC-KB-001: Create article
-- [ ] TC-KB-002: Search
-
-#### Projects
-- [ ] TC-PROJ-001: Create project
-- [ ] TC-PROJ-003: Board view
-- [ ] TC-PROJ-004: Create task
-- [ ] TC-PROJ-005: Drag task
-
-#### Reports
-- [ ] TC-RPT-001: View reports
-- [ ] TC-RPT-003: Export
-
-#### Settings
-- [ ] TC-SET-001: Categories
-- [ ] TC-SET-003: Service templates
-
-#### Users
-- [ ] TC-USER-001: Create user
-- [ ] TC-USER-005: Profile
-
-#### Security
-- [ ] TC-SEC-001: SQL injection
-- [ ] TC-SEC-002: XSS
-- [ ] TC-SEC-004: Auth bypass
-- [ ] TC-SEC-005: Authorization
-
-#### UI/UX
-- [ ] TC-UX-001: Form validation
-- [ ] TC-UX-002: Loading states
-- [ ] TC-UX-003: Error handling
-
-#### Mobile
-- [ ] TC-MOB-001: Navigation
-- [ ] TC-MOB-002: Forms
+**Step 6-7: Implement**
+- Login as Agent
+- Open approved change
+- Click "Start Implementation"
+- (Do the work)
+- Click "Complete" → Select "Successful"
 
 ---
 
-## Appendix: API Endpoints Reference
+## 4.3 End-to-End: Problem Investigation
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/v1/auth/login | Login |
-| POST | /api/v1/auth/logout | Logout |
-| POST | /api/v1/auth/refresh | Refresh token |
-| GET | /api/v1/auth/me | Get current user |
+### Complete Flow
+```
+1. Multiple users report similar incidents
+2. Agent notices pattern, creates Problem record
+3. Agent links all related incidents
+4. Agent investigates, adds Root Cause
+5. Agent adds Workaround (temporary fix)
+6. Agent works on permanent solution
+7. Problem resolved, incidents updated
+```
 
-### Tickets
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/v1/tickets | List tickets |
-| POST | /api/v1/tickets | Create ticket |
-| GET | /api/v1/tickets/{id} | Get ticket |
-| PUT | /api/v1/tickets/{id} | Update ticket |
-| DELETE | /api/v1/tickets/{id} | Delete ticket |
+### How to Test This Flow
 
-### Projects
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/v1/projects | List projects |
-| POST | /api/v1/projects | Create project |
-| GET | /api/v1/projects/{id} | Get project |
-| GET | /api/v1/projects/{id}/tasks | Get tasks |
-| POST | /api/v1/projects/{id}/tasks | Create task |
+**Step 1: Create Multiple Incidents**
+- Create 3 incidents about "Network slow"
+- All slightly different descriptions
 
-### Users
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/v1/users | List users |
-| POST | /api/v1/users | Create user |
-| GET | /api/v1/users/{id} | Get user |
-| PUT | /api/v1/users/{id} | Update user |
+**Step 2: Create Problem**
+- Login as Agent
+- Create problem: "Network slowdown affecting Building A"
+- Link the 3 incidents
+
+**Step 3-4: Add RCA**
+- Add Root Cause: "Network switch firmware bug"
+
+**Step 5: Add Workaround**
+- Add Workaround: "Restart switch daily at 6am"
+
+**Step 6-7: Resolve**
+- Add Solution: "Upgraded switch firmware to v2.3"
+- Change problem status to RESOLVED
+- Verify linked incidents are notified
 
 ---
 
-**Document End**
+# PART 5: SECURITY TESTS
 
-*This document should be updated as new features are added to the platform.*
+## 5.1 Test Unauthorized Access
+
+#### TC-SEC-001: Access Without Login
+**Steps:**
+1. Open browser
+2. Directly go to: `/dashboard`
+
+**Expected:**
+- Redirected to login page
+- Cannot see any data
+
+---
+
+#### TC-SEC-002: User Accessing Admin Pages
+**Role:** End User
+**Steps:**
+1. Login as End User
+2. Manually type URL: `/settings/users`
+
+**Expected:**
+- Access denied message OR
+- Redirected to dashboard
+- Cannot see user management
+
+---
+
+#### TC-SEC-003: Agent Accessing Other's Tickets
+**Role:** Agent
+**Steps:**
+1. Login as Agent A
+2. Find a ticket assigned to Agent B
+3. Try to view it
+
+**Expected:**
+- If system allows viewing: Can view but not reassign (depending on config)
+- If restricted: Cannot view ticket
+
+---
+
+## 5.2 Test Input Validation
+
+#### TC-SEC-004: XSS Prevention
+**Steps:**
+1. Create incident with title: `<script>alert('XSS')</script>`
+2. Save and view the incident
+
+**Expected:**
+- Script does NOT execute
+- Text is displayed as plain text (escaped)
+
+---
+
+#### TC-SEC-005: SQL Injection Prevention
+**Steps:**
+1. In search box, type: `'; DROP TABLE users; --`
+2. Search
+
+**Expected:**
+- Search completes normally (no results)
+- Database is NOT damaged
+- No errors shown
+
+---
+
+# PART 6: PERFORMANCE TESTS
+
+## 6.1 Page Load Times
+
+Test each page and note how long it takes to load:
+
+| Page | Acceptable | Notes |
+|------|------------|-------|
+| Login | < 2 sec | |
+| Dashboard | < 3 sec | |
+| Incidents List | < 3 sec | |
+| Incident Detail | < 2 sec | |
+| Projects Board | < 3 sec | |
+| Reports | < 5 sec | May be slower |
+
+## 6.2 How to Measure
+
+1. Open browser DevTools (F12)
+2. Go to "Network" tab
+3. Refresh the page
+4. Look at total load time at bottom
+
+---
+
+# PART 7: MOBILE TESTING
+
+## 7.1 Test on Mobile Devices
+
+Test the application on:
+- iPhone (Safari)
+- Android (Chrome)
+- Tablet
+
+### What to Check
+
+#### TC-MOB-001: Navigation
+1. Open app on mobile
+2. Sidebar should be hidden (hamburger menu)
+3. Click hamburger → sidebar slides in
+4. Click menu item → page loads, menu closes
+
+#### TC-MOB-002: Forms
+1. Open any form (create incident)
+2. Fields should be full width
+3. Keyboard opens when tapping field
+4. Can scroll form
+5. Can submit form
+
+#### TC-MOB-003: Tables
+1. Open Incidents list
+2. Table may become scrollable horizontally
+3. Or cards view instead of table
+4. Can tap to open details
+
+#### TC-MOB-004: Kanban
+1. Open Incidents Kanban view
+2. Columns scroll horizontally
+3. Can drag cards (if supported)
+4. Or tap to change status
+
+---
+
+# PART 8: BUG REPORTING
+
+## Bug Report Template
+
+When you find a bug, document it like this:
+
+```
+BUG REPORT
+==========
+
+Bug ID: BUG-001
+Date: December 11, 2024
+Tester: [Your Name]
+Severity: Critical / High / Medium / Low
+
+ENVIRONMENT
+-----------
+Browser: Chrome 120
+OS: Windows 11
+Screen: 1920x1080
+User Role: Admin
+
+DESCRIPTION
+-----------
+What happened: Cannot create incident - button does nothing
+
+STEPS TO REPRODUCE
+------------------
+1. Login as Admin
+2. Go to Incidents
+3. Click "Create Incident"
+4. Fill in all fields
+5. Click "Create" button
+6. Nothing happens
+
+EXPECTED RESULT
+---------------
+Incident should be created and I should see success message
+
+ACTUAL RESULT
+-------------
+Button does nothing, no error message, incident not created
+
+SCREENSHOT
+----------
+[Attach screenshot]
+
+CONSOLE ERRORS
+--------------
+Error: POST /api/v1/tickets failed with 500
+Uncaught TypeError: Cannot read property 'id' of undefined
+
+ADDITIONAL NOTES
+----------------
+Only happens when Category is not selected
+```
+
+## Severity Definitions
+
+| Severity | Definition | Example |
+|----------|------------|---------|
+| Critical | System unusable, data loss | Cannot login, database corrupted |
+| High | Major feature broken, no workaround | Cannot create tickets |
+| Medium | Feature broken but has workaround | Filter doesn't work, but can search |
+| Low | Minor issue, cosmetic | Typo, alignment off |
+
+---
+
+# PART 9: TEST EXECUTION CHECKLIST
+
+## Pre-Testing Setup
+- [ ] Test accounts created for all roles
+- [ ] Browser cache cleared
+- [ ] Know the test environment URL
+- [ ] Have access to email for notifications
+
+## Daily Testing Routine
+
+### Authentication (10 minutes)
+- [ ] Login with valid credentials
+- [ ] Login with invalid credentials
+- [ ] Logout and verify
+
+### Incidents (30 minutes)
+- [ ] Create incident as End User
+- [ ] Create incident as Admin
+- [ ] View incident list
+- [ ] Use filters
+- [ ] Open incident detail
+- [ ] Add comment
+- [ ] Change status
+- [ ] Assign incident
+- [ ] Kanban drag and drop
+
+### Service Requests (15 minutes)
+- [ ] View service catalog
+- [ ] Create service request
+- [ ] Approve/reject as manager
+
+### Changes (20 minutes)
+- [ ] Create change request
+- [ ] Submit for approval
+- [ ] Approve as manager
+- [ ] Reject and verify
+
+### Projects (20 minutes)
+- [ ] Create project
+- [ ] Create task
+- [ ] Drag task on Kanban
+- [ ] Create sprint
+
+### Knowledge Base (10 minutes)
+- [ ] Search KB
+- [ ] Browse categories
+- [ ] Create article (as agent)
+
+### Settings (15 minutes)
+- [ ] Verify role access restrictions
+- [ ] Create category
+- [ ] Create service template
+
+### Reports (10 minutes)
+- [ ] View report
+- [ ] Export report
+
+---
+
+# PART 10: QUICK REFERENCE
+
+## URLs
+| Page | URL |
+|------|-----|
+| Login | /login |
+| Dashboard | /dashboard |
+| Incidents | /incidents |
+| Service Requests | /service-requests |
+| Problems | /problems |
+| Changes | /changes |
+| Assets | /assets |
+| Knowledge Base | /knowledge |
+| Projects | /projects |
+| Reports | /reports |
+| Settings | /settings |
+| Profile | /profile |
+
+## Status Colors (Typical)
+- 🔵 Blue = New
+- 🟡 Yellow = Open / In Progress
+- 🟠 Orange = Pending
+- 🟢 Green = Resolved / Done
+- ⚫ Gray = Closed
+
+## Priority Colors
+- 🔴 Red = Critical / High
+- 🟡 Yellow = Medium
+- 🟢 Green = Low
+
+## Keyboard Shortcuts (if implemented)
+- `?` = Show shortcuts help
+- `c` = Create new item
+- `s` = Focus search
+- `Esc` = Close modal
+
+---
+
+**END OF QA TESTING GUIDE**
+
+*Document Version: 2.0*
+*Created: December 2024*
+*For: QA Team*
